@@ -1,5 +1,5 @@
 
-'use client'; // Make this a client component
+'use client';
 
 import Link from "next/link";
 import { useRouter } from "next/navigation";
@@ -30,31 +30,37 @@ import {
 export default function LoginPage() {
   const router = useRouter();
   const { login } = useAuth();
+  const [email, setEmail] = useState('m@example.com');
+  const [password, setPassword] = useState('password');
   const [role, setRole] = useState('USER');
-  const [loginData, setLoginData] = useState<any>(null);
+  const [requestPayload, setRequestPayload] = useState<any>(null);
   const [isAlertOpen, setIsAlertOpen] = useState(false);
 
   const handleLogin = (event: React.FormEvent) => {
     event.preventDefault();
     
+    const payload = {
+      email,
+      password,
+    };
+
+    setRequestPayload(payload);
+    setIsAlertOpen(true);
+  };
+
+  const confirmLogin = () => {
+    // Simulate a successful API response
     const mockAuthResponse = {
       username: 'Max Robinson',
       token: 'fake-jwt-token-for-prototype',
       roles: [role]
     };
 
-    setLoginData(mockAuthResponse);
-    setIsAlertOpen(true);
-  };
-
-  const confirmLogin = () => {
-    if (loginData) {
-      login(
-        { username: loginData.username, roles: loginData.roles },
-        loginData.token
-      );
-      router.push('/');
-    }
+    login(
+      { username: mockAuthResponse.username, roles: mockAuthResponse.roles },
+      mockAuthResponse.token
+    );
+    router.push('/');
   };
 
   return (
@@ -84,7 +90,8 @@ export default function LoginPage() {
                     id="email"
                     type="email"
                     placeholder="m@example.com"
-                    defaultValue="m@example.com" // Pre-fill for demo
+                    value={email}
+                    onChange={(e) => setEmail(e.target.value)}
                     required
                   />
                 </div>
@@ -95,7 +102,13 @@ export default function LoginPage() {
                       Forgot your password?
                     </Link>
                   </div>
-                  <Input id="password" type="password" defaultValue="password" required />
+                  <Input 
+                    id="password" 
+                    type="password" 
+                    value={password}
+                    onChange={(e) => setPassword(e.target.value)}
+                    required 
+                  />
                 </div>
                  <div className="grid gap-2">
                   <Label>Login as a</Label>
@@ -135,19 +148,19 @@ export default function LoginPage() {
       <AlertDialog open={isAlertOpen} onOpenChange={setIsAlertOpen}>
         <AlertDialogContent>
           <AlertDialogHeader>
-            <AlertDialogTitle>Login Data (Simulation)</AlertDialogTitle>
+            <AlertDialogTitle>Login Request Payload</AlertDialogTitle>
             <AlertDialogDescription>
-              This is the mock data that simulates a successful login response from a server.
+              This is the JSON data that would be sent to the backend to authenticate the user.
             </AlertDialogDescription>
           </AlertDialogHeader>
           <div className="my-4 max-h-60 overflow-y-auto rounded-md border bg-muted p-4">
             <pre className="text-sm text-muted-foreground">
-              <code>{loginData ? JSON.stringify(loginData, null, 2) : ''}</code>
+              <code>{requestPayload ? JSON.stringify(requestPayload, null, 2) : ''}</code>
             </pre>
           </div>
           <AlertDialogFooter>
             <AlertDialogAction onClick={confirmLogin}>
-              Confirm & Login
+              Confirm & Simulate Login
             </AlertDialogAction>
           </AlertDialogFooter>
         </AlertDialogContent>
