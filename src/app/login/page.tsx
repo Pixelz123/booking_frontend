@@ -17,99 +17,110 @@ import { Home } from "lucide-react";
 import { useAuth } from "@/context/auth-context";
 import React, { useState } from "react";
 import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
-import { 
-  AlertDialog, 
-  AlertDialogAction, 
-  AlertDialogContent, 
-  AlertDialogDescription, 
-  AlertDialogFooter, 
-  AlertDialogHeader, 
-  AlertDialogTitle 
-} from '@/components/ui/alert-dialog';
+import { useToast } from "@/hooks/use-toast";
 
 export default function LoginPage() {
   const router = useRouter();
   const { login } = useAuth();
+  const { toast } = useToast();
   const [username, setUsername] = useState('Max Robinson');
   const [password, setPassword] = useState('password');
   const [role, setRole] = useState('USER');
-  const [requestPayload, setRequestPayload] = useState<any>(null);
-  const [isAlertOpen, setIsAlertOpen] = useState(false);
+  const [isLoading, setIsLoading] = useState(false);
 
-  const handleLogin = (event: React.FormEvent) => {
+  const handleLogin = async (event: React.FormEvent) => {
     event.preventDefault();
-    
-    const payload = {
-      username,
-      password,
-    };
+    setIsLoading(true);
 
-    setRequestPayload(payload);
-    setIsAlertOpen(true);
-  };
+    try {
+      const response = await fetch('/api/auth/login', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ username, password, role }), // Sending role for simulation
+      });
 
-  const confirmLogin = () => {
-    // Simulate a successful API response
-    const mockAuthResponse = {
-      username: username,
-      token: 'fake-jwt-token-for-prototype',
-      roles: [role]
-    };
+      if (!response.ok) {
+        const errorData = await response.json();
+        throw new Error(errorData.message || 'Login failed');
+      }
 
-    login(
-      { username: mockAuthResponse.username, roles: mockAuthResponse.roles },
-      mockAuthResponse.token
-    );
-    router.push('/');
+      const data = await response.json();
+      
+      // The backend should return user info and a token
+      const user = {
+          username: data.username,
+          roles: data.roles,
+      };
+      const token = data.token;
+
+      login(user, token);
+      toast({
+        title: "Login Successful",
+        description: `Welcome back, ${user.username}!`,
+      });
+      router.push('/');
+    } catch (error) {
+      const errorMessage = error instanceof Error ? error.message : 'An unexpected error occurred';
+      toast({
+        title: "Login Error",
+        description: errorMessage,
+        variant: "destructive",
+      });
+    } finally {
+      setIsLoading(false);
+    }
   };
 
   return (
-    <>
-      <div className="flex items-center justify-center min-h-screen bg-background">
-         <div className="absolute top-4 left-4">
-          <Button variant="ghost" asChild>
-            <Link href="/">
-              <Home className="mr-2 h-4 w-4" />
-              Back to Home
-            </Link>
-          </Button>
-        </div>
-        <Card className="mx-auto max-w-sm w-full">
-          <CardHeader>
-            <CardTitle className="text-2xl font-headline">Login</CardTitle>
-            <CardDescription>
-              Enter your username below to login to your account
-            </CardDescription>
-          </CardHeader>
-          <CardContent>
-            <form onSubmit={handleLogin}>
-              <div className="grid gap-4">
-                <div className="grid gap-2">
-                  <Label htmlFor="username">Username</Label>
-                  <Input
-                    id="username"
-                    type="text"
-                    placeholder="Your username"
-                    value={username}
-                    onChange={(e) => setUsername(e.target.value)}
-                    required
-                  />
+    <div className="flex items-center justify-center min-h-screen bg-background">
+      <div className="absolute top-4 left-4">
+        <Button variant="ghost" asChild>
+          <Link href="/">
+            <Home className="mr-2 h-4 w-4" />
+            Back to Home
+          </Link>
+        </Button>
+      </div>
+      <Card className="mx-auto max-w-sm w-full">
+        <CardHeader>
+          <CardTitle className="text-2xl font-headline">Login</CardTitle>
+          <CardDescription>
+            Enter your username below to login to your account
+          </CardDescription>
+        </CardHeader>
+        <CardContent>
+          <form onSubmit={handleLogin}>
+            <div className="grid gap-4">
+              <div className="grid gap-2">
+                <Label htmlFor="username">Username</Label>
+                <Input
+                  id="username"
+                  type="text"
+                  placeholder="Your username"
+                  value={username}
+                  onChange={(e) => setUsername(e.target.value)}
+                  required
+                  disabled={isLoading}
+                />
+              </div>
+              <div className="grid gap-2">
+                <div className="flex items-center">
+                  <Label htmlFor="password">Password</Label>
+                  <Link href="#" className="ml-auto inline-block text-sm underline">
+                    Forgot your password?
+                  </Link>
                 </div>
-                <div className="grid gap-2">
-                  <div className="flex items-center">
-                    <Label htmlFor="password">Password</Label>
-                    <Link href="#" className="ml-auto inline-block text-sm underline">
-                      Forgot your password?
-                    </Link>
-                  </div>
-                  <Input 
-                    id="password" 
-                    type="password" 
-                    value={password}
-                    onChange={(e) => setPassword(e.target.value)}
-                    required 
-                  />
-                </div>
+                <Input 
+                  id="password" 
+                  type="password" 
+                  value={password}
+                  onChange={(e) => setPassword(e.target.value)}
+                  required 
+                  disabled={isLoading}
+                />
+              </div>
                  <div className="grid gap-2">
                   <Label>Login as a</Label>
                   <RadioGroup 
@@ -117,6 +128,7 @@ export default function LoginPage() {
                     value={role}
                     onValueChange={setRole}
                     className="flex gap-4"
+                    disabled={isLoading}
                   >
                     <div className="flex items-center space-x-2">
                       <RadioGroupItem value="USER" id="r-user" />
@@ -128,10 +140,10 @@ export default function LoginPage() {
                     </div>
                   </RadioGroup>
                 </div>
-                <Button type="submit" className="w-full bg-primary text-primary-foreground hover:bg-primary/90">
-                  Login
+                <Button type="submit" className="w-full bg-primary text-primary-foreground hover:bg-primary/90" disabled={isLoading}>
+                  {isLoading ? 'Logging in...' : 'Login'}
                 </Button>
-                <Button variant="outline" className="w-full">
+                <Button variant="outline" className="w-full" disabled={isLoading}>
                   Login with Google
                 </Button>
               </div>
@@ -145,26 +157,5 @@ export default function LoginPage() {
           </CardContent>
         </Card>
       </div>
-      <AlertDialog open={isAlertOpen} onOpenChange={setIsAlertOpen}>
-        <AlertDialogContent>
-          <AlertDialogHeader>
-            <AlertDialogTitle>Login Request Payload</AlertDialogTitle>
-            <AlertDialogDescription>
-              This is the JSON data that would be sent to the backend to authenticate the user.
-            </AlertDialogDescription>
-          </AlertDialogHeader>
-          <div className="my-4 max-h-60 overflow-y-auto rounded-md border bg-muted p-4">
-            <pre className="text-sm text-muted-foreground">
-              <code>{requestPayload ? JSON.stringify(requestPayload, null, 2) : ''}</code>
-            </pre>
-          </div>
-          <AlertDialogFooter>
-            <AlertDialogAction onClick={confirmLogin}>
-              Confirm & Simulate Login
-            </AlertDialogAction>
-          </AlertDialogFooter>
-        </AlertDialogContent>
-      </AlertDialog>
-    </>
   )
 }

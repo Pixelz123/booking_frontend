@@ -33,8 +33,8 @@ export type PropertyDetail = {
 export type Booking = {
   bookingId: string;
   property: PropertyDetail;
-  checkIn: string;
-  checkOut: string;
+  cheakIn: string;
+  cheakOut: string;
   guests: number;
   totalPrice: number;
 };

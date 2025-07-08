@@ -18,15 +18,6 @@ import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
 import { useAuth } from "@/context/auth-context";
 import React, { useState } from "react";
 import { useToast } from "@/hooks/use-toast";
-import { 
-  AlertDialog, 
-  AlertDialogAction, 
-  AlertDialogContent, 
-  AlertDialogDescription, 
-  AlertDialogFooter, 
-  AlertDialogHeader, 
-  AlertDialogTitle 
-} from '@/components/ui/alert-dialog';
 
 
 export default function SignupPage() {
@@ -36,43 +27,72 @@ export default function SignupPage() {
   const [role, setRole] = useState('USER');
   const [firstName, setFirstName] = useState('');
   const [lastName, setLastName] = useState('');
-  const [signupData, setSignupData] = useState<any>(null);
-  const [isAlertOpen, setIsAlertOpen] = useState(false);
+  const [email, setEmail] = useState('');
+  const [password, setPassword] = useState('');
+  const [isLoading, setIsLoading] = useState(false);
 
-  const handleSignup = (event: React.FormEvent) => {
+  const handleSignup = async (event: React.FormEvent) => {
     event.preventDefault();
+    setIsLoading(true);
 
-    if (!firstName || !lastName) {
+    if (!firstName || !lastName || !email || !password) {
       toast({
         title: "Validation Error",
-        description: "Please enter your first and last name.",
+        description: "Please fill in all fields.",
         variant: "destructive",
       });
+      setIsLoading(false);
       return;
     }
 
-    const mockAuthResponse = {
-      username: `${firstName} ${lastName}`,
-      token: 'fake-jwt-token-for-prototype-signup',
-      roles: [role],
-    };
+    try {
+      const response = await fetch('/api/auth/register', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ 
+            firstName, 
+            lastName, 
+            email, 
+            password, 
+            username: `${firstName} ${lastName}`, 
+            roles: [role] 
+        }),
+      });
 
-    setSignupData(mockAuthResponse);
-    setIsAlertOpen(true);
-  };
+      if (!response.ok) {
+        const errorData = await response.json();
+        throw new Error(errorData.message || 'Signup failed');
+      }
 
-  const confirmSignup = () => {
-    if (signupData) {
-      login(
-        { username: signupData.username, roles: signupData.roles },
-        signupData.token
-      );
+      const data = await response.json();
+
+      const user = {
+        username: data.username,
+        roles: data.roles,
+      };
+      const token = data.token;
+      
+      login(user, token);
+      toast({
+        title: "Account Created!",
+        description: `Welcome, ${user.username}!`,
+      });
       router.push('/');
+
+    } catch (error) {
+      const errorMessage = error instanceof Error ? error.message : 'An unexpected error occurred';
+      toast({
+        title: "Signup Error",
+        description: errorMessage,
+        variant: "destructive",
+      });
+    } finally {
+        setIsLoading(false);
     }
   };
 
+
   return (
-     <>
        <div className="flex items-center justify-center min-h-screen bg-background">
          <div className="absolute top-4 left-4">
           <Button variant="ghost" asChild>
@@ -101,6 +121,7 @@ export default function SignupPage() {
                       required 
                       value={firstName}
                       onChange={(e) => setFirstName(e.target.value)}
+                      disabled={isLoading}
                     />
                   </div>
                   <div className="grid gap-2">
@@ -111,6 +132,7 @@ export default function SignupPage() {
                       required 
                       value={lastName}
                       onChange={(e) => setLastName(e.target.value)}
+                      disabled={isLoading}
                     />
                   </div>
                 </div>
@@ -121,11 +143,21 @@ export default function SignupPage() {
                     type="email"
                     placeholder="m@example.com"
                     required
+                    value={email}
+                    onChange={(e) => setEmail(e.target.value)}
+                    disabled={isLoading}
                   />
                 </div>
                 <div className="grid gap-2">
                   <Label htmlFor="password">Password</Label>
-                  <Input id="password" type="password" required />
+                  <Input 
+                    id="password" 
+                    type="password" 
+                    required 
+                    value={password}
+                    onChange={(e) => setPassword(e.target.value)}
+                    disabled={isLoading}
+                  />
                 </div>
                 <div className="grid gap-2">
                   <Label>Sign up as a</Label>
@@ -134,6 +166,7 @@ export default function SignupPage() {
                     value={role}
                     onValueChange={setRole}
                     className="flex gap-4"
+                    disabled={isLoading}
                   >
                     <div className="flex items-center space-x-2">
                       <RadioGroupItem value="USER" id="r-user" />
@@ -145,10 +178,10 @@ export default function SignupPage() {
                     </div>
                   </RadioGroup>
                 </div>
-                <Button type="submit" className="w-full bg-accent text-accent-foreground hover:bg-accent/90">
-                  Create an account
+                <Button type="submit" className="w-full bg-accent text-accent-foreground hover:bg-accent/90" disabled={isLoading}>
+                  {isLoading ? 'Creating Account...' : 'Create an account'}
                 </Button>
-                <Button variant="outline" className="w-full">
+                <Button variant="outline" className="w-full" disabled={isLoading}>
                   Sign up with Google
                 </Button>
               </div>
@@ -162,26 +195,5 @@ export default function SignupPage() {
           </CardContent>
         </Card>
       </div>
-      <AlertDialog open={isAlertOpen} onOpenChange={setIsAlertOpen}>
-          <AlertDialogContent>
-              <AlertDialogHeader>
-                  <AlertDialogTitle>Sign Up Data (Simulation)</AlertDialogTitle>
-                  <AlertDialogDescription>
-                      This is the mock data that simulates a successful signup response from a server.
-                  </AlertDialogDescription>
-              </AlertDialogHeader>
-              <div className="my-4 max-h-60 overflow-y-auto rounded-md border bg-muted p-4">
-                  <pre className="text-sm text-muted-foreground">
-                      <code>{signupData ? JSON.stringify(signupData, null, 2) : ''}</code>
-                  </pre>
-              </div>
-              <AlertDialogFooter>
-                  <AlertDialogAction onClick={confirmSignup}>
-                      Confirm & Create Account
-                  </AlertDialogAction>
-              </AlertDialogFooter>
-          </AlertDialogContent>
-      </AlertDialog>
-    </>
   )
 }

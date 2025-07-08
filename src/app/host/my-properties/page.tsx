@@ -4,16 +4,19 @@ import { useRouter } from 'next/navigation';
 import { useEffect, useState } from 'react';
 import Link from 'next/link';
 import { Button } from '@/components/ui/button';
-import { allProperties } from '@/lib/data';
 import type { PropertySummary } from '@/lib/types';
 import { PropertyCard } from '@/components/property-card';
 import { PlusCircle } from 'lucide-react';
+import { useToast } from '@/hooks/use-toast';
+import { Skeleton } from '@/components/ui/skeleton';
 
 export default function MyPropertiesPage() {
-  const { isAuthenticated, user } = useAuth();
+  const { isAuthenticated, user, token } = useAuth();
   const router = useRouter();
+  const { toast } = useToast();
   const [isClient, setIsClient] = useState(false);
   const [myProperties, setMyProperties] = useState<PropertySummary[]>([]);
+  const [isLoading, setIsLoading] = useState(true);
 
   useEffect(() => {
     setIsClient(true);
@@ -23,21 +26,34 @@ export default function MyPropertiesPage() {
     if (isClient) {
       if (!isAuthenticated || !user?.roles.includes('HOST')) {
         router.push('/login');
-      } else {
-         const hostProperties = allProperties
-            .filter(p => p.hostname === user.username)
-            .map(p => ({
-                propertyId: p.property_id,
-                hostname: p.hostname,
-                city: p.city,
-                heroImageSrc: p.hero_image_src,
-                price_per_night: p.price_per_night,
-                name: p.name,
-            }));
-        setMyProperties(hostProperties);
+      } else if (token) {
+        const fetchHostProperties = async () => {
+          setIsLoading(true);
+          try {
+            const response = await fetch('/api/properties/my-properties', {
+              headers: {
+                'Authorization': `Bearer ${token}`
+              }
+            });
+            if (!response.ok) {
+              throw new Error("Failed to fetch your properties");
+            }
+            const data = await response.json();
+            setMyProperties(data);
+          } catch (error) {
+             toast({
+                title: "Error",
+                description: "Could not load your properties.",
+                variant: "destructive"
+              });
+          } finally {
+            setIsLoading(false);
+          }
+        };
+        fetchHostProperties();
       }
     }
-  }, [isAuthenticated, user, router, isClient]);
+  }, [isAuthenticated, user, router, isClient, token, toast]);
 
   if (!isClient || !isAuthenticated || !user?.roles.includes('HOST')) {
     return (
@@ -73,7 +89,18 @@ export default function MyPropertiesPage() {
         </Button>
       </div>
 
-      {myProperties.length > 0 ? (
+      {isLoading ? (
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6 md:gap-8">
+            {Array.from({ length: 4 }).map((_, i) => (
+               <div key={i} className="space-y-2">
+                  <Skeleton className="h-48 w-full" />
+                  <Skeleton className="h-6 w-3/4" />
+                  <Skeleton className="h-4 w-1/2" />
+                  <Skeleton className="h-6 w-1/4" />
+                </div>
+            ))}
+        </div>
+      ) : myProperties.length > 0 ? (
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6 md:gap-8">
           {myProperties.map((property) => (
             <PropertyCard key={property.propertyId} property={property} />

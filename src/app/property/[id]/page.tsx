@@ -2,13 +2,12 @@
 
 import Image from 'next/image';
 import { notFound, useRouter, useParams } from 'next/navigation';
-import { allProperties } from '@/lib/data';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Calendar } from '@/components/ui/calendar';
 import { Separator } from '@/components/ui/separator';
 import { BedDouble, Bath, Users, Trash2 } from 'lucide-react';
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { DateRange } from 'react-day-picker';
 import { useAuth } from '@/context/auth-context';
 import { useToast } from '@/hooks/use-toast';
@@ -16,16 +15,8 @@ import { differenceInDays, format } from 'date-fns';
 import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
 import { Label } from '@/components/ui/label';
 import { Input } from '@/components/ui/input';
-import { 
-  AlertDialog, 
-  AlertDialogAction, 
-  AlertDialogContent, 
-  AlertDialogDescription, 
-  AlertDialogFooter, 
-  AlertDialogHeader, 
-  AlertDialogTitle 
-} from '@/components/ui/alert-dialog';
 import type { PropertyDetail } from '@/lib/types';
+import { Skeleton } from '@/components/ui/skeleton';
 
 
 type Guest = {
@@ -33,21 +24,105 @@ type Guest = {
     age: string; // Use string to capture input value
 };
 
+function PropertyDetailSkeleton() {
+  return (
+    <div className="bg-background animate-pulse">
+      <div className="container mx-auto px-4 md:px-6 py-12">
+        <div>
+          <Skeleton className="h-10 w-3/4 mb-2" />
+          <Skeleton className="h-6 w-1/4" />
+        </div>
+        <div className="mt-6">
+          <Skeleton className="h-[400px] md:h-[500px] w-full rounded-lg" />
+        </div>
+        <div className="mt-8 grid grid-cols-1 lg:grid-cols-3 gap-12">
+          <div className="lg:col-span-2 space-y-6">
+            <div className="flex justify-between items-start">
+              <div>
+                <Skeleton className="h-8 w-1/2 mb-2" />
+                <div className="flex items-center gap-4">
+                  <Skeleton className="h-5 w-20" />
+                  <Skeleton className="h-5 w-24" />
+                  <Skeleton className="h-5 w-28" />
+                </div>
+              </div>
+            </div>
+            <Separator />
+            <div className="space-y-2">
+              <Skeleton className="h-4 w-full" />
+              <Skeleton className="h-4 w-full" />
+              <Skeleton className="h-4 w-5/6" />
+            </div>
+          </div>
+          <div className="lg:col-span-1">
+            <Card className="sticky top-24">
+              <CardHeader>
+                <Skeleton className="h-8 w-1/2" />
+              </CardHeader>
+              <CardContent className="space-y-4">
+                <Skeleton className="h-60 w-full" />
+                <Skeleton className="h-11 w-full" />
+                <Skeleton className="h-12 w-full" />
+              </CardContent>
+            </Card>
+          </div>
+        </div>
+      </div>
+    </div>
+  )
+}
+
 export default function PropertyDetailPage() {
   const params = useParams<{ id: string }>();
-  const property: PropertyDetail | undefined = allProperties.find((p) => p.property_id === params.id);
   const router = useRouter();
   const { toast } = useToast();
-  const { isAuthenticated } = useAuth();
+  const { isAuthenticated, token } = useAuth();
+  
+  const [property, setProperty] = useState<PropertyDetail | null>(null);
+  const [isLoading, setIsLoading] = useState(true);
+  const [isBooking, setIsBooking] = useState(false);
+
   const [date, setDate] = useState<DateRange | undefined>();
   const [guests, setGuests] = useState<Guest[]>([{ name: '', age: '' }]);
-  const [bookingPayload, setBookingPayload] = useState<string>('');
-  const [isAlertOpen, setIsAlertOpen] = useState(false);
-  const [propertyJson, setPropertyJson] = useState('');
-  const [isPropertyAlertOpen, setIsPropertyAlertOpen] = useState(false);
+
+  useEffect(() => {
+    const fetchProperty = async () => {
+        if (!params.id) return;
+        setIsLoading(true);
+        try {
+            const response = await fetch(`/api/properties/${params.id}`);
+            if (!response.ok) {
+                if (response.status === 404) {
+                    notFound();
+                }
+                throw new Error("Failed to fetch property details");
+            }
+            const data = await response.json();
+            setProperty(data);
+        } catch (error) {
+            toast({
+                title: "Error",
+                description: "Could not load property details. Please try again later.",
+                variant: "destructive",
+            });
+            // Optional: redirect to a generic error page or back
+            router.push('/search');
+        } finally {
+            setIsLoading(false);
+        }
+    };
+
+    fetchProperty();
+  }, [params.id, router, toast]);
+
+  if (isLoading) {
+    return <PropertyDetailSkeleton />;
+  }
 
   if (!property) {
-    notFound();
+    // This case will be handled by the notFound() in the fetch logic
+    // but as a fallback we can render a message.
+    return <div>Property not found.</div>;
   }
   
   const handleGuestChange = (index: number, field: keyof Guest, value: string) => {
@@ -72,13 +147,8 @@ export default function PropertyDetailPage() {
     const newGuests = guests.filter((_, i) => i !== index);
     setGuests(newGuests);
   };
-  
-  const handleViewPropertyJson = () => {
-    setPropertyJson(JSON.stringify(property, null, 2));
-    setIsPropertyAlertOpen(true);
-  }
 
-  const handleReserve = () => {
+  const handleReserve = async () => {
     if (!isAuthenticated) {
       toast({
         title: "Authentication Required",
@@ -90,42 +160,24 @@ export default function PropertyDetailPage() {
     }
 
     if (!date || !date.from || !date.to) {
-      toast({
-        title: "Dates not selected",
-        description: "Please select a check-in and check-out date.",
-        variant: "destructive",
-      });
+      toast({ title: "Dates not selected", description: "Please select a check-in and check-out date.", variant: "destructive" });
       return;
     }
-
     const nights = differenceInDays(date.to, date.from);
-     if (nights <= 0) {
-        toast({
-            title: "Invalid Date Range",
-            description: "Check-out date must be after the check-in date.",
-            variant: "destructive",
-        });
+    if (nights <= 0) {
+        toast({ title: "Invalid Date Range", description: "Check-out date must be after the check-in date.", variant: "destructive" });
         return;
     }
-
     if (guests.some(g => !g.name || !g.age)) {
-        toast({
-            title: "Guest details incomplete",
-            description: "Please fill in the name and age for all guests.",
-            variant: "destructive",
-        });
+        toast({ title: "Guest details incomplete", description: "Please fill in the name and age for all guests.", variant: "destructive" });
         return;
     }
-
     if (guests.length === 0) {
-        toast({
-            title: "No guests added",
-            description: "Please add at least one guest for the reservation.",
-            variant: "destructive",
-        });
+        toast({ title: "No guests added", description: "Please add at least one guest for the reservation.", variant: "destructive" });
         return;
     }
 
+    setIsBooking(true);
     const bookingRequest = {
       propertyId: property.property_id,
       guestList: guests.map(g => ({ name: g.name, age: parseInt(g.age, 10) })),
@@ -133,8 +185,34 @@ export default function PropertyDetailPage() {
       cheakOut: format(date.to, 'yyyy-MM-dd'),
     };
 
-    setBookingPayload(JSON.stringify(bookingRequest, null, 2));
-    setIsAlertOpen(true);
+    try {
+        const response = await fetch('/api/bookings', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+                'Authorization': `Bearer ${token}`
+            },
+            body: JSON.stringify(bookingRequest)
+        });
+
+        if (!response.ok) {
+            const errorData = await response.json();
+            throw new Error(errorData.message || 'Failed to make reservation');
+        }
+
+        toast({
+          title: "Reservation Submitted!",
+          description: `Your booking for ${property.name} with ${guests.length} guest(s) has been requested.`,
+        });
+        // Optionally redirect to bookings page
+        router.push('/bookings');
+
+    } catch(error) {
+        const errorMessage = error instanceof Error ? error.message : 'An unexpected error occurred';
+        toast({ title: "Reservation Error", description: errorMessage, variant: "destructive" });
+    } finally {
+        setIsBooking(false);
+    }
   };
 
   return (
@@ -142,10 +220,7 @@ export default function PropertyDetailPage() {
       <div className="container mx-auto px-4 md:px-6 py-12">
         {/* Title and Info Header */}
         <div>
-          <div className="flex items-center justify-between">
             <h1 className="text-4xl font-bold font-headline">{property.name}</h1>
-            <Button variant="outline" onClick={handleViewPropertyJson}>View Property JSON</Button>
-          </div>
           <div className="flex items-center gap-4 text-muted-foreground mt-2">
             <span>{property.city}, {property.country}</span>
           </div>
@@ -202,12 +277,12 @@ export default function PropertyDetailPage() {
                   className="p-0"
                   selected={date}
                   onSelect={setDate}
-                  disabled={{ before: new Date() }}
+                  disabled={isBooking || { before: new Date() }}
                 />
                 
                 <Popover>
                     <PopoverTrigger asChild>
-                        <Button variant="outline" className="w-full justify-start font-normal">
+                        <Button variant="outline" className="w-full justify-start font-normal" disabled={isBooking}>
                             <Users className="mr-2 h-4 w-4" />
                             {guests.length} Guest(s)
                         </Button>
@@ -262,8 +337,9 @@ export default function PropertyDetailPage() {
                 <Button 
                   onClick={handleReserve}
                   className="w-full h-12 text-lg bg-accent text-accent-foreground hover:bg-accent/90"
+                  disabled={isBooking}
                 >
-                  Reserve
+                  {isBooking ? 'Reserving...' : 'Reserve'}
                 </Button>
                 <p className="text-center text-sm text-muted-foreground mt-2">You won't be charged yet</p>
               </CardContent>
@@ -271,55 +347,6 @@ export default function PropertyDetailPage() {
           </div>
         </div>
       </div>
-      <AlertDialog open={isAlertOpen} onOpenChange={setIsAlertOpen}>
-        <AlertDialogContent>
-          <AlertDialogHeader>
-            <AlertDialogTitle>Booking Request Payload</AlertDialogTitle>
-            <AlertDialogDescription>
-              Here is the JSON payload that would be sent to the backend:
-            </AlertDialogDescription>
-          </AlertDialogHeader>
-          <div className="my-4 max-h-60 overflow-y-auto rounded-md border bg-muted p-4">
-            <pre className="text-sm text-muted-foreground">
-              <code>{bookingPayload}</code>
-            </pre>
-          </div>
-          <AlertDialogFooter>
-            <AlertDialogAction
-              onClick={() => {
-                setIsAlertOpen(false);
-                toast({
-                  title: "Reservation Submitted!",
-                  description: `Your booking for ${property.name} with ${guests.length} guest(s) has been requested.`,
-                });
-              }}
-            >
-              Confirm & Close
-            </AlertDialogAction>
-          </AlertDialogFooter>
-        </AlertDialogContent>
-      </AlertDialog>
-      
-      <AlertDialog open={isPropertyAlertOpen} onOpenChange={setIsPropertyAlertOpen}>
-        <AlertDialogContent>
-          <AlertDialogHeader>
-            <AlertDialogTitle>Property Data (JSON)</AlertDialogTitle>
-            <AlertDialogDescription>
-              This is the full JSON data object for the property being viewed.
-            </AlertDialogDescription>
-          </AlertDialogHeader>
-          <div className="my-4 max-h-60 overflow-y-auto rounded-md border bg-muted p-4">
-            <pre className="text-sm text-muted-foreground">
-              <code>{propertyJson}</code>
-            </pre>
-          </div>
-          <AlertDialogFooter>
-            <AlertDialogAction onClick={() => setIsPropertyAlertOpen(false)}>
-              Close
-            </AlertDialogAction>
-          </AlertDialogFooter>
-        </AlertDialogContent>
-      </AlertDialog>
     </div>
   );
 }

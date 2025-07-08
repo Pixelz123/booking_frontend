@@ -18,15 +18,8 @@ import { Textarea } from '@/components/ui/textarea';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { useState } from 'react';
 import { useToast } from '@/hooks/use-toast';
-import {
-  AlertDialog,
-  AlertDialogAction,
-  AlertDialogContent,
-  AlertDialogDescription,
-  AlertDialogFooter,
-  AlertDialogHeader,
-  AlertDialogTitle,
-} from '@/components/ui/alert-dialog';
+import { useRouter } from 'next/navigation';
+import { useAuth } from '@/context/auth-context';
 import { PlusCircle, Trash2 } from 'lucide-react';
 
 const propertySchema = z.object({
@@ -52,9 +45,10 @@ const propertySchema = z.object({
 });
 
 export function PropertySubmissionForm() {
-  const [submissionPayload, setSubmissionPayload] = useState('');
-  const [isAlertOpen, setIsAlertOpen] = useState(false);
+  const [isLoading, setIsLoading] = useState(false);
   const { toast } = useToast();
+  const router = useRouter();
+  const { token } = useAuth();
 
   const form = useForm<z.infer<typeof propertySchema>>({
     resolver: zodResolver(propertySchema),
@@ -81,18 +75,48 @@ export function PropertySubmissionForm() {
     name: 'imageList',
   });
 
-  function onSubmit(values: z.infer<typeof propertySchema>) {
-    // In a real app, you would also add hostname, property_id.
+  async function onSubmit(values: z.infer<typeof propertySchema>) {
+    setIsLoading(true);
     const submissionData = {
       ...values,
       imageList: values.imageList.map((item) => item.value),
     };
-    setSubmissionPayload(JSON.stringify(submissionData, null, 2));
-    setIsAlertOpen(true);
+
+    try {
+      const response = await fetch('/api/properties', {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json',
+            'Authorization': `Bearer ${token}`
+        },
+        body: JSON.stringify(submissionData)
+      });
+
+      if (!response.ok) {
+        const errorData = await response.json();
+        throw new Error(errorData.message || "Failed to submit property");
+      }
+
+      toast({
+        title: 'Property Submitted!',
+        description: 'Your property has been successfully listed.',
+      });
+      form.reset();
+      router.push('/host/my-properties');
+
+    } catch(error) {
+       const errorMessage = error instanceof Error ? error.message : 'An unexpected error occurred';
+       toast({
+        title: 'Submission Error',
+        description: errorMessage,
+        variant: 'destructive'
+      });
+    } finally {
+        setIsLoading(false);
+    }
   }
 
   return (
-    <>
       <Card>
         <CardHeader>
           <CardTitle className="font-headline text-2xl">Property Details</CardTitle>
@@ -107,7 +131,7 @@ export function PropertySubmissionForm() {
                   <FormItem>
                     <FormLabel>Property Name</FormLabel>
                     <FormControl>
-                      <Input placeholder="e.g. Cozy Beachfront Cottage" {...field} />
+                      <Input placeholder="e.g. Cozy Beachfront Cottage" {...field} disabled={isLoading}/>
                     </FormControl>
                     <FormMessage />
                   </FormItem>
@@ -121,7 +145,7 @@ export function PropertySubmissionForm() {
                   <FormItem>
                     <FormLabel>Description</FormLabel>
                     <FormControl>
-                      <Textarea placeholder="Tell us about your property" rows={5} {...field} />
+                      <Textarea placeholder="Tell us about your property" rows={5} {...field} disabled={isLoading}/>
                     </FormControl>
                     <FormMessage />
                   </FormItem>
@@ -135,7 +159,7 @@ export function PropertySubmissionForm() {
                   <FormItem>
                     <FormLabel>Hero Image URL</FormLabel>
                     <FormControl>
-                      <Input placeholder="https://example.com/hero-image.png" {...field} />
+                      <Input placeholder="https://example.com/hero-image.png" {...field} disabled={isLoading}/>
                     </FormControl>
                     <FormDescription>This is the main image shown in listings.</FormDescription>
                     <FormMessage />
@@ -158,7 +182,7 @@ export function PropertySubmissionForm() {
                         <FormItem>
                           <div className="flex items-center gap-2">
                             <FormControl>
-                              <Input placeholder="https://example.com/image.png" {...field} />
+                              <Input placeholder="https://example.com/image.png" {...field} disabled={isLoading}/>
                             </FormControl>
                             {fields.length > 1 && (
                               <Button
@@ -166,6 +190,7 @@ export function PropertySubmissionForm() {
                                 variant="ghost"
                                 size="icon"
                                 onClick={() => remove(index)}
+                                disabled={isLoading}
                               >
                                 <Trash2 className="h-4 w-4" />
                               </Button>
@@ -183,6 +208,7 @@ export function PropertySubmissionForm() {
                   size="sm"
                   className="mt-4"
                   onClick={() => append({ value: '' })}
+                  disabled={isLoading}
                 >
                   <PlusCircle className="mr-2" />
                   Add Image
@@ -196,7 +222,7 @@ export function PropertySubmissionForm() {
                   <FormItem>
                     <FormLabel>Address</FormLabel>
                     <FormControl>
-                      <Input placeholder="123 Main St" {...field} />
+                      <Input placeholder="123 Main St" {...field} disabled={isLoading}/>
                     </FormControl>
                     <FormMessage />
                   </FormItem>
@@ -211,7 +237,7 @@ export function PropertySubmissionForm() {
                     <FormItem>
                       <FormLabel>City</FormLabel>
                       <FormControl>
-                        <Input placeholder="e.g. Paris" {...field} />
+                        <Input placeholder="e.g. Paris" {...field} disabled={isLoading}/>
                       </FormControl>
                       <FormMessage />
                     </FormItem>
@@ -224,7 +250,7 @@ export function PropertySubmissionForm() {
                     <FormItem>
                       <FormLabel>State / Province</FormLabel>
                       <FormControl>
-                        <Input placeholder="e.g. Île-de-France" {...field} />
+                        <Input placeholder="e.g. Île-de-France" {...field} disabled={isLoading}/>
                       </FormControl>
                       <FormMessage />
                     </FormItem>
@@ -240,7 +266,7 @@ export function PropertySubmissionForm() {
                     <FormItem>
                       <FormLabel>Country</FormLabel>
                       <FormControl>
-                        <Input placeholder="e.g. France" {...field} />
+                        <Input placeholder="e.g. France" {...field} disabled={isLoading}/>
                       </FormControl>
                       <FormMessage />
                     </FormItem>
@@ -253,7 +279,7 @@ export function PropertySubmissionForm() {
                     <FormItem>
                       <FormLabel>Postal Code</FormLabel>
                       <FormControl>
-                        <Input type="number" placeholder="e.g. 75001" {...field} value={field.value ?? ''} />
+                        <Input type="number" placeholder="e.g. 75001" {...field} value={field.value ?? ''} disabled={isLoading}/>
                       </FormControl>
                       <FormMessage />
                     </FormItem>
@@ -268,7 +294,7 @@ export function PropertySubmissionForm() {
                   <FormItem>
                     <FormLabel>Price per night ($)</FormLabel>
                     <FormControl>
-                      <Input type="number" {...field} />
+                      <Input type="number" {...field} disabled={isLoading}/>
                     </FormControl>
                     <FormMessage />
                   </FormItem>
@@ -283,7 +309,7 @@ export function PropertySubmissionForm() {
                     <FormItem>
                       <FormLabel>Guests</FormLabel>
                       <FormControl>
-                        <Input type="number" {...field} />
+                        <Input type="number" {...field} disabled={isLoading}/>
                       </FormControl>
                       <FormMessage />
                     </FormItem>
@@ -296,7 +322,7 @@ export function PropertySubmissionForm() {
                     <FormItem>
                       <FormLabel>Bedrooms</FormLabel>
                       <FormControl>
-                        <Input type="number" {...field} />
+                        <Input type="number" {...field} disabled={isLoading}/>
                       </FormControl>
                       <FormMessage />
                     </FormItem>
@@ -309,7 +335,7 @@ export function PropertySubmissionForm() {
                     <FormItem>
                       <FormLabel>Beds</FormLabel>
                       <FormControl>
-                        <Input type="number" {...field} />
+                        <Input type="number" {...field} disabled={isLoading}/>
                       </FormControl>
                       <FormMessage />
                     </FormItem>
@@ -322,7 +348,7 @@ export function PropertySubmissionForm() {
                     <FormItem>
                       <FormLabel>Bathrooms</FormLabel>
                       <FormControl>
-                        <Input type="number" {...field} />
+                        <Input type="number" {...field} disabled={isLoading}/>
                       </FormControl>
                       <FormMessage />
                     </FormItem>
@@ -330,42 +356,12 @@ export function PropertySubmissionForm() {
                 />
               </div>
 
-              <Button type="submit" className="w-full h-11 bg-primary text-primary-foreground hover:bg-primary/90">
-                Submit Property
+              <Button type="submit" className="w-full h-11 bg-primary text-primary-foreground hover:bg-primary/90" disabled={isLoading}>
+                {isLoading ? 'Submitting...' : 'Submit Property'}
               </Button>
             </form>
           </Form>
         </CardContent>
       </Card>
-      <AlertDialog open={isAlertOpen} onOpenChange={setIsAlertOpen}>
-        <AlertDialogContent>
-          <AlertDialogHeader>
-            <AlertDialogTitle>Property Submission Payload</AlertDialogTitle>
-            <AlertDialogDescription>
-              This is the JSON data that would be sent to the backend.
-            </AlertDialogDescription>
-          </AlertDialogHeader>
-          <div className="my-4 max-h-60 overflow-y-auto rounded-md border bg-muted p-4">
-            <pre className="text-sm text-muted-foreground">
-              <code>{submissionPayload}</code>
-            </pre>
-          </div>
-          <AlertDialogFooter>
-            <AlertDialogAction
-              onClick={() => {
-                setIsAlertOpen(false);
-                form.reset();
-                toast({
-                  title: 'Property Submitted!',
-                  description: 'Your property has been successfully listed (simulation).',
-                });
-              }}
-            >
-              Confirm & Close
-            </AlertDialogAction>
-          </AlertDialogFooter>
-        </AlertDialogContent>
-      </AlertDialog>
-    </>
   );
 }

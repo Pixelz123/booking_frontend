@@ -7,26 +7,19 @@ import Link from 'next/link';
 import Image from 'next/image';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent } from '@/components/ui/card';
-import { myBookings } from '@/lib/data';
 import { Calendar, Users } from 'lucide-react';
 import { format } from 'date-fns';
 import type { Booking } from '@/lib/types';
-import { 
-  AlertDialog, 
-  AlertDialogAction, 
-  AlertDialogContent, 
-  AlertDialogDescription, 
-  AlertDialogFooter, 
-  AlertDialogHeader, 
-  AlertDialogTitle 
-} from '@/components/ui/alert-dialog';
+import { useToast } from '@/hooks/use-toast';
+import { Skeleton } from '@/components/ui/skeleton';
 
 export default function MyBookingsPage() {
-  const { isAuthenticated, user } = useAuth();
+  const { isAuthenticated, user, token } = useAuth();
   const router = useRouter();
+  const { toast } = useToast();
   const [isClient, setIsClient] = useState(false);
-  const [selectedBookingJson, setSelectedBookingJson] = useState('');
-  const [isAlertOpen, setIsAlertOpen] = useState(false);
+  const [bookings, setBookings] = useState<Booking[]>([]);
+  const [isLoading, setIsLoading] = useState(true);
 
   useEffect(() => {
     setIsClient(true);
@@ -36,27 +29,34 @@ export default function MyBookingsPage() {
     if (isClient && !isAuthenticated) {
       router.push('/login');
     }
-  }, [isAuthenticated, router, isClient]);
-
-  const handleViewJson = (booking: Booking) => {
-    const simplifiedBooking = {
-      bookingId: booking.bookingId,
-      property: {
-        property_id: booking.property.property_id,
-        name: booking.property.name,
-        hostname: booking.property.hostname,
-        city: booking.property.city,
-        country: booking.property.country,
-        hero_image_src: booking.property.hero_image_src,
-      },
-      checkIn: booking.checkIn,
-      checkOut: booking.checkOut,
-      guests: booking.guests,
-      totalPrice: booking.totalPrice,
-    };
-    setSelectedBookingJson(JSON.stringify(simplifiedBooking, null, 2));
-    setIsAlertOpen(true);
-  };
+    
+    if (isClient && isAuthenticated && token) {
+      const fetchBookings = async () => {
+        setIsLoading(true);
+        try {
+          const response = await fetch('/api/bookings', {
+            headers: {
+              'Authorization': `Bearer ${token}`
+            }
+          });
+          if (!response.ok) {
+            throw new Error("Failed to fetch bookings");
+          }
+          const data = await response.json();
+          setBookings(data);
+        } catch (error) {
+          toast({
+            title: "Error",
+            description: "Could not load your bookings.",
+            variant: "destructive"
+          });
+        } finally {
+          setIsLoading(false);
+        }
+      };
+      fetchBookings();
+    }
+  }, [isAuthenticated, router, isClient, token, toast]);
 
   if (!isClient || !isAuthenticated) {
     return (
@@ -85,9 +85,32 @@ export default function MyBookingsPage() {
           </p>
         </div>
 
-        {myBookings.length > 0 ? (
+        {isLoading ? (
           <div className="grid gap-8">
-            {myBookings.map((booking) => (
+            {Array.from({ length: 2 }).map((_, i) => (
+               <Card key={i} className="overflow-hidden md:flex shadow-md">
+                  <div className="md:w-1/3 relative h-48 md:h-auto">
+                      <Skeleton className="h-full w-full" />
+                  </div>
+                  <CardContent className="p-6 md:w-2/3 flex flex-col justify-between">
+                      <div>
+                          <Skeleton className="h-4 w-1/4 mb-2" />
+                          <Skeleton className="h-8 w-3/4 mb-2" />
+                          <Skeleton className="h-4 w-1/3 mb-4" />
+                          <Skeleton className="h-5 w-1/2 mb-2" />
+                          <Skeleton className="h-5 w-1/3" />
+                      </div>
+                      <div className="mt-6 flex gap-4">
+                          <Skeleton className="h-10 w-28" />
+                          <Skeleton className="h-10 w-36" />
+                      </div>
+                  </CardContent>
+              </Card>
+            ))}
+          </div>
+        ) : bookings.length > 0 ? (
+          <div className="grid gap-8">
+            {bookings.map((booking) => (
               <Card key={booking.bookingId} className="overflow-hidden md:flex shadow-md hover:shadow-lg transition-shadow duration-300">
                 <div className="md:w-1/3 relative h-48 md:h-auto">
                   <Image
@@ -107,7 +130,7 @@ export default function MyBookingsPage() {
                     <div className="flex flex-wrap items-center gap-x-6 gap-y-2 text-muted-foreground mt-4">
                       <div className="flex items-center gap-2">
                         <Calendar className="w-4 h-4" />
-                        <span>{format(new Date(booking.checkIn), 'MMM d, yyyy')} - {format(new Date(booking.checkOut), 'MMM d, yyyy')}</span>
+                        <span>{format(new Date(booking.cheakIn), 'MMM d, yyyy')} - {format(new Date(booking.cheakOut), 'MMM d, yyyy')}</span>
                       </div>
                       <div className="flex items-center gap-2">
                         <Users className="w-4 h-4" />
@@ -123,7 +146,6 @@ export default function MyBookingsPage() {
                       <Link href={`/property/${booking.property.property_id}`}>View Property</Link>
                     </Button>
                     <Button variant="outline">Manage Booking</Button>
-                    <Button variant="secondary" onClick={() => handleViewJson(booking)}>View JSON</Button>
                   </div>
                 </CardContent>
               </Card>
@@ -139,26 +161,6 @@ export default function MyBookingsPage() {
             </div>
         )}
       </div>
-      <AlertDialog open={isAlertOpen} onOpenChange={setIsAlertOpen}>
-        <AlertDialogContent>
-          <AlertDialogHeader>
-            <AlertDialogTitle>Booking Data (JSON)</AlertDialogTitle>
-            <AlertDialogDescription>
-              This is the JSON data object for the selected booking, simplified to include only the fields displayed in this component.
-            </AlertDialogDescription>
-          </AlertDialogHeader>
-          <div className="my-4 max-h-60 overflow-y-auto rounded-md border bg-muted p-4">
-            <pre className="text-sm text-muted-foreground">
-              <code>{selectedBookingJson}</code>
-            </pre>
-          </div>
-          <AlertDialogFooter>
-            <AlertDialogAction onClick={() => setIsAlertOpen(false)}>
-              Close
-            </AlertDialogAction>
-          </AlertDialogFooter>
-        </AlertDialogContent>
-      </AlertDialog>
     </>
   );
 }
