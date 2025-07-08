@@ -1,5 +1,4 @@
 import { PropertySubmissionForm } from "@/components/property-submission-form";
-import { PriceSuggestion } from "@/components/price-suggestion";
 
 export default function SubmitPropertyPage() {
   return (
@@ -12,13 +11,8 @@ export default function SubmitPropertyPage() {
           </p>
         </div>
 
-        <div className="grid grid-cols-1 lg:grid-cols-3 gap-12">
-          <div className="lg:col-span-2">
-             <PropertySubmissionForm />
-          </div>
-          <div className="lg:col-span-1">
-             <PriceSuggestion />
-          </div>
+        <div className="max-w-2xl mx-auto">
+          <PropertySubmissionForm />
         </div>
       </div>
     </div>
