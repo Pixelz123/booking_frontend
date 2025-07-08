@@ -55,8 +55,8 @@ export default function LoginPage() {
     setShowJsonDialog(false);
 
     const endpoint = role === 'HOST'
-      ? '/api/auth/host-login'
-      : '/api/auth/user-login';
+      ? '/api/auth/loginAsHost'
+      : '/api/auth/login';
     
     const payload = {
         username,
