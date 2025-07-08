@@ -14,11 +14,13 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Home } from "lucide-react";
 import { useAuth } from "@/context/auth-context";
-import React from "react";
+import React, { useState } from "react";
+import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
 
 export default function LoginPage() {
   const router = useRouter();
   const { login } = useAuth();
+  const [role, setRole] = useState('guest');
 
   const handleLogin = (event: React.FormEvent) => {
     event.preventDefault();
@@ -28,7 +30,7 @@ export default function LoginPage() {
     const mockAuthResponse = {
       username: 'Max Robinson',
       jwttoken: 'fake-jwt-token-for-prototype',
-      roles: ['guest'] // You can change this to ['host'] to test host view
+      roles: [role]
     };
 
     login(
@@ -77,6 +79,24 @@ export default function LoginPage() {
                   </Link>
                 </div>
                 <Input id="password" type="password" defaultValue="password" required />
+              </div>
+               <div className="grid gap-2">
+                <Label>Login as a</Label>
+                <RadioGroup 
+                  defaultValue="guest" 
+                  value={role}
+                  onValueChange={setRole}
+                  className="flex gap-4"
+                >
+                  <div className="flex items-center space-x-2">
+                    <RadioGroupItem value="guest" id="r-guest" />
+                    <Label htmlFor="r-guest" className="font-normal">Guest</Label>
+                  </div>
+                  <div className="flex items-center space-x-2">
+                    <RadioGroupItem value="host" id="r-host" />
+                    <Label htmlFor="r-host" className="font-normal">Host</Label>
+                  </div>
+                </RadioGroup>
               </div>
               <Button type="submit" className="w-full bg-primary text-primary-foreground hover:bg-primary/90">
                 Login
