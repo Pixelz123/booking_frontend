@@ -1,6 +1,6 @@
-import type { Property, Booking } from './types';
+import type { PropertyDetail, Booking, PropertySummary } from './types';
 
-export const allProperties: Property[] = [
+export const allProperties: PropertyDetail[] = [
   {
     property_id: '1',
     name: 'Serene Downtown Apartment',
@@ -135,7 +135,14 @@ export const allProperties: Property[] = [
   },
 ];
 
-export const featuredProperties = allProperties.slice(0, 4);
+export const featuredProperties: PropertySummary[] = allProperties.slice(0, 4).map(p => ({
+  propertyId: p.property_id,
+  hostname: p.hostname,
+  city: p.city,
+  heroImageSrc: p.hero_image_src,
+  price_per_night: p.price_per_night,
+  name: p.name,
+}));
 
 export const myBookings: Booking[] = [
   {

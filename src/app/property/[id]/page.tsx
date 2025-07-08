@@ -7,8 +7,7 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Calendar } from '@/components/ui/calendar';
 import { Separator } from '@/components/ui/separator';
-import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
-import { BedDouble, Bath, Users, Star, Trash2 } from 'lucide-react';
+import { BedDouble, Bath, Users, Trash2 } from 'lucide-react';
 import { useState } from 'react';
 import { DateRange } from 'react-day-picker';
 import { useAuth } from '@/context/auth-context';
@@ -26,6 +25,8 @@ import {
   AlertDialogHeader, 
   AlertDialogTitle 
 } from '@/components/ui/alert-dialog';
+import type { PropertyDetail } from '@/lib/types';
+
 
 type Guest = {
     name: string;
@@ -34,7 +35,7 @@ type Guest = {
 
 export default function PropertyDetailPage() {
   const params = useParams<{ id: string }>();
-  const property = allProperties.find((p) => p.property_id === params.id);
+  const property: PropertyDetail | undefined = allProperties.find((p) => p.property_id === params.id);
   const router = useRouter();
   const { toast } = useToast();
   const { isAuthenticated } = useAuth();
@@ -146,11 +147,6 @@ export default function PropertyDetailPage() {
             <Button variant="outline" onClick={handleViewPropertyJson}>View Property JSON</Button>
           </div>
           <div className="flex items-center gap-4 text-muted-foreground mt-2">
-            <div className="flex items-center gap-1">
-              <Star className="w-4 h-4 fill-accent text-accent" />
-              <span>{property.rating.toFixed(1)} ({property.reviewsCount} reviews)</span>
-            </div>
-            <span>·</span>
             <span>{property.city}, {property.country}</span>
           </div>
         </div>
@@ -175,17 +171,13 @@ export default function PropertyDetailPage() {
           <div className="lg:col-span-2">
             <div className="flex justify-between items-start">
               <div>
-                <h2 className="text-2xl font-bold font-headline">{property.type} hosted by {property.hostname}</h2>
+                <h2 className="text-2xl font-bold font-headline">Hosted by {property.hostname}</h2>
                 <div className="flex items-center gap-4 text-muted-foreground mt-1">
                   <div className="flex items-center gap-2"><Users className="h-5 w-5" /> {property.guests} guests</div>
                   <div className="flex items-center gap-2"><BedDouble className="h-5 w-5" /> {property.bedroom} bedrooms</div>
                   <div className="flex items-center gap-2"><Bath className="h-5 w-5" /> {property.bathroom} bathrooms</div>
                 </div>
               </div>
-              <Avatar className="h-16 w-16">
-                <AvatarImage src={property.host_avatar_src} alt={property.hostname} data-ai-hint="person portrait" />
-                <AvatarFallback>{property.hostname.charAt(0)}</AvatarFallback>
-              </Avatar>
             </div>
             
             <Separator className="my-6" />

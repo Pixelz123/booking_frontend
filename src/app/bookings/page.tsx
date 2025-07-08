@@ -86,7 +86,7 @@ export default function MyBookingsPage() {
                 </div>
                 <CardContent className="p-6 md:w-2/3 flex flex-col justify-between">
                   <div>
-                    <p className="text-sm text-muted-foreground">{booking.property.type} in {booking.property.city}, {booking.property.country}</p>
+                    <p className="text-sm text-muted-foreground">{booking.property.city}, {booking.property.country}</p>
                     <h2 className="text-2xl font-bold font-headline mt-1">{booking.property.name}</h2>
                     <div className="flex flex-wrap items-center gap-x-6 gap-y-2 text-muted-foreground mt-4">
                       <div className="flex items-center gap-2">

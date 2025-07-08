@@ -1,5 +1,13 @@
+export type PropertySummary = {
+  propertyId: string;
+  hostname: string;
+  city: string;
+  heroImageSrc: string;
+  price_per_night: number;
+  name: string;
+};
 
-export type Property = {
+export type PropertyDetail = {
   property_id: string;
   name: string;
   description: string;
@@ -15,16 +23,16 @@ export type Property = {
   bedroom: number;
   beds: number;
   bathroom: number;
-  type: string;
-  rating: number;
-  reviewsCount: number;
+  type: string; // Will be removed in a future step, keeping for compatibility for now.
+  rating: number; // Will be removed in a future step
+  reviewsCount: number; // Will be removed in a future step
   hostname: string;
-  host_avatar_src: string;
+  host_avatar_src: string; // Will be removed in a future step
 };
 
 export type Booking = {
   bookingId: string;
-  property: Property;
+  property: PropertyDetail;
   checkIn: string;
   checkOut: string;
   guests: number;
