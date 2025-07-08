@@ -39,7 +39,21 @@ export default function MyBookingsPage() {
   }, [isAuthenticated, router, isClient]);
 
   const handleViewJson = (booking: Booking) => {
-    setSelectedBookingJson(JSON.stringify(booking, null, 2));
+    const simplifiedBooking = {
+      bookingId: booking.bookingId,
+      property: {
+        property_id: booking.property.property_id,
+        name: booking.property.name,
+        city: booking.property.city,
+        country: booking.property.country,
+        hero_image_src: booking.property.hero_image_src,
+      },
+      checkIn: booking.checkIn,
+      checkOut: booking.checkOut,
+      guests: booking.guests,
+      totalPrice: booking.totalPrice,
+    };
+    setSelectedBookingJson(JSON.stringify(simplifiedBooking, null, 2));
     setIsAlertOpen(true);
   };
 
@@ -128,7 +142,7 @@ export default function MyBookingsPage() {
           <AlertDialogHeader>
             <AlertDialogTitle>Booking Data (JSON)</AlertDialogTitle>
             <AlertDialogDescription>
-              This is the full JSON data object for the selected booking.
+              This is the JSON data object for the selected booking, simplified to include only the fields displayed in this component.
             </AlertDialogDescription>
           </AlertDialogHeader>
           <div className="my-4 max-h-60 overflow-y-auto rounded-md border bg-muted p-4">
