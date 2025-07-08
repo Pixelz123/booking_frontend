@@ -53,9 +53,7 @@ function SignupPageContent() {
       return;
     }
     
-    const endpoint = role === 'HOST' 
-      ? '/api/auth/register/host' 
-      : '/api/auth/register/user';
+    const endpoint = '/api/auth/register';
 
     try {
       const response = await fetch(endpoint, {
@@ -67,6 +65,7 @@ function SignupPageContent() {
             email, 
             password, 
             username: `${firstName} ${lastName}`,
+            role: role,
         }),
       });
 
