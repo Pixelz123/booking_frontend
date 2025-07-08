@@ -14,9 +14,60 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import { cn } from '@/lib/utils';
+import { useState } from 'react';
+import { useRouter } from 'next/navigation';
+import { useToast } from '@/hooks/use-toast';
 
 export function Header() {
-  const { isAuthenticated, user, logout } = useAuth();
+  const { isAuthenticated, user, logout, login, token } = useAuth();
+  const [isBecomingHost, setIsBecomingHost] = useState(false);
+  const router = useRouter();
+  const { toast } = useToast();
+
+  const handleBecomeHost = async () => {
+    if (!isAuthenticated || !token) {
+        toast({ title: "Please log in first", variant: "destructive" });
+        router.push('/login');
+        return;
+    }
+
+    setIsBecomingHost(true);
+    try {
+        const response = await fetch('/api/auth/become-host', {
+            method: 'POST',
+            headers: {
+                'Authorization': `Bearer ${token}`
+            }
+        });
+
+        if (!response.ok) {
+            const errorData = await response.json();
+            throw new Error(errorData.message || "Failed to upgrade your account.");
+        }
+
+        const updatedUser: { username: string, roles: string[] } = await response.json();
+
+        // Update the auth context with the new user roles
+        login(updatedUser, token);
+
+        toast({
+            title: "Congratulations!",
+            description: "You are now a host. Redirecting you to your dashboard.",
+        });
+
+        router.push('/host/my-properties');
+
+    } catch (error) {
+        const errorMessage = error instanceof Error ? error.message : 'An unexpected error occurred';
+        toast({
+            title: "Error",
+            description: errorMessage,
+            variant: "destructive"
+        });
+    } finally {
+        setIsBecomingHost(false);
+    }
+  };
 
   return (
     <header className="sticky top-0 z-50 w-full border-b bg-card shadow-sm">
@@ -33,20 +84,30 @@ export function Header() {
             Search
           </Link>
           
-          {user?.roles.includes('HOST') ? (
-            <Link
-              href="/host/my-properties"
-              className="text-foreground/80 transition-colors hover:text-foreground"
-            >
-              Host Dashboard
-            </Link>
+          {isAuthenticated && user ? (
+              user.roles.includes('HOST') ? (
+                <Link
+                  href="/host/my-properties"
+                  className="text-foreground/80 transition-colors hover:text-foreground"
+                >
+                  Host Dashboard
+                </Link>
+              ) : (
+                 <button
+                    onClick={handleBecomeHost}
+                    disabled={isBecomingHost}
+                    className="text-foreground/80 transition-colors hover:text-foreground disabled:opacity-50 disabled:cursor-not-allowed"
+                  >
+                    {isBecomingHost ? 'Upgrading...' : 'Become a Host'}
+                 </button>
+              )
           ) : (
-            <Link
-              href="/signup?role=HOST"
-              className="text-foreground/80 transition-colors hover:text-foreground"
-            >
-              Become a Host
-            </Link>
+             <Link
+                href="/signup?role=HOST"
+                className="text-foreground/80 transition-colors hover:text-foreground"
+              >
+                Become a Host
+              </Link>
           )}
 
         </nav>
