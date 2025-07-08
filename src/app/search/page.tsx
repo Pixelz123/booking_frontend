@@ -1,3 +1,4 @@
+
 'use client';
 
 import { Suspense, useEffect, useState } from 'react';
@@ -35,8 +36,24 @@ function SearchResults() {
     const fetchProperties = async () => {
       setIsLoading(true);
       try {
-        const query = new URLSearchParams(searchParams).toString();
-        const response = await fetch(`/api/properties/search?${query}`);
+        const locationQueryString = searchParams.get('locationQueryString');
+        const cheakIn = searchParams.get('cheakIn');
+        const cheakOut = searchParams.get('cheakOut');
+
+        const searchPayload = {
+          locationQueryString: locationQueryString || 'everywhere',
+          cheakIn: cheakIn || null,
+          cheakOut: cheakOut || null,
+        };
+        
+        const response = await fetch('/api/properties/search', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify(searchPayload),
+        });
+
         if (!response.ok) {
           throw new Error('Failed to fetch properties');
         }
@@ -68,7 +85,7 @@ function SearchResults() {
             <CardContent className="space-y-6">
               <div className="space-y-2">
                 <Label htmlFor="location">Location</Label>
-                <Input id="location" placeholder="e.g. New York" defaultValue={location} />
+                <Input id="location" placeholder="e.g. New York" defaultValue={location === 'everywhere' ? '' : location} />
               </div>
               <div className="space-y-2">
                 <Label>Price Range</Label>
