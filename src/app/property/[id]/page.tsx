@@ -8,12 +8,15 @@ import { Button } from '@/components/ui/button';
 import { Calendar } from '@/components/ui/calendar';
 import { Separator } from '@/components/ui/separator';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
-import { BedDouble, Bath, Users, Star, Wifi, Utensils, Wind } from 'lucide-react';
+import { BedDouble, Bath, Users, Star, Wifi, Utensils, Wind, Trash2 } from 'lucide-react';
 import { useState } from 'react';
 import { DateRange } from 'react-day-picker';
 import { useAuth } from '@/context/auth-context';
 import { useToast } from '@/hooks/use-toast';
 import { differenceInDays, format } from 'date-fns';
+import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
+import { Label } from '@/components/ui/label';
+import { Input } from '@/components/ui/input';
 
 const amenityIcons: { [key: string]: React.ReactNode } = {
   'Wifi': <Wifi className="h-5 w-5" />,
@@ -21,18 +24,46 @@ const amenityIcons: { [key: string]: React.ReactNode } = {
   'Air Conditioning': <Wind className="h-5 w-5" />,
 };
 
+type Guest = {
+    name: string;
+    age: string; // Use string to capture input value
+};
 
 export default function PropertyDetailPage() {
   const params = useParams<{ id: string }>();
   const property = allProperties.find((p) => p.id === params.id);
   const router = useRouter();
   const { toast } = useToast();
-  const { isAuthenticated, user } = useAuth();
+  const { isAuthenticated } = useAuth();
   const [date, setDate] = useState<DateRange | undefined>();
+  const [guests, setGuests] = useState<Guest[]>([{ name: '', age: '' }]);
 
   if (!property) {
     notFound();
   }
+  
+  const handleGuestChange = (index: number, field: keyof Guest, value: string) => {
+    const newGuests = [...guests];
+    newGuests[index][field] = value;
+    setGuests(newGuests);
+  };
+
+  const handleAddGuest = () => {
+    if (guests.length < property.details.guests) {
+      setGuests([...guests, { name: '', age: '' }]);
+    } else {
+        toast({
+            title: "Guest limit reached",
+            description: `This property can accommodate a maximum of ${property.details.guests} guests.`,
+            variant: "destructive",
+        });
+    }
+  };
+
+  const handleRemoveGuest = (index: number) => {
+    const newGuests = guests.filter((_, i) => i !== index);
+    setGuests(newGuests);
+  };
 
   const handleReserve = () => {
     if (!isAuthenticated) {
@@ -63,22 +94,37 @@ export default function PropertyDetailPage() {
         });
         return;
     }
-    const totalPrice = nights * property.pricePerNight;
+
+    if (guests.some(g => !g.name || !g.age)) {
+        toast({
+            title: "Guest details incomplete",
+            description: "Please fill in the name and age for all guests.",
+            variant: "destructive",
+        });
+        return;
+    }
+
+    if (guests.length === 0) {
+        toast({
+            title: "No guests added",
+            description: "Please add at least one guest for the reservation.",
+            variant: "destructive",
+        });
+        return;
+    }
 
     const bookingRequest = {
       propertyId: property.id,
-      userId: user?.username, // In a real app, this would be a user ID
-      checkInDate: format(date.from, 'yyyy-MM-dd'),
-      checkOutDate: format(date.to, 'yyyy-MM-dd'),
-      nights,
-      totalPrice,
+      guestList: guests.map(g => ({ name: g.name, age: parseInt(g.age, 10) })),
+      cheakIn: format(date.from, 'yyyy-MM-dd'),
+      cheakOut: format(date.to, 'yyyy-MM-dd'),
     };
 
     console.log("Booking Request Payload:", JSON.stringify(bookingRequest, null, 2));
 
     toast({
       title: "Reservation Submitted!",
-      description: `Your booking for ${property.name} has been requested. Total: $${totalPrice}`,
+      description: `Your booking for ${property.name} with ${guests.length} guest(s) has been requested.`,
     });
   };
 
@@ -157,7 +203,7 @@ export default function PropertyDetailPage() {
                   <span className="text-base font-normal text-muted-foreground"> / night</span>
                 </CardTitle>
               </CardHeader>
-              <CardContent>
+              <CardContent className="space-y-4">
                 <Calendar
                   mode="range"
                   numberOfMonths={1}
@@ -166,9 +212,64 @@ export default function PropertyDetailPage() {
                   onSelect={setDate}
                   disabled={{ before: new Date() }}
                 />
+                
+                <Popover>
+                    <PopoverTrigger asChild>
+                        <Button variant="outline" className="w-full justify-start font-normal">
+                            <Users className="mr-2 h-4 w-4" />
+                            {guests.length} Guest(s)
+                        </Button>
+                    </PopoverTrigger>
+                    <PopoverContent className="w-80">
+                        <div className="grid gap-4">
+                            <div className="space-y-2">
+                                <h4 className="font-medium leading-none">Guests</h4>
+                                <p className="text-sm text-muted-foreground">
+                                    This property accommodates {property.details.guests} guests max.
+                                </p>
+                            </div>
+                            <div className="grid gap-2 max-h-60 overflow-y-auto pr-2">
+                                {guests.map((guest, index) => (
+                                    <div key={index} className="grid grid-cols-6 items-center gap-2">
+                                        <div className="col-span-3">
+                                            <Label htmlFor={`guest-name-${index}`} className="sr-only">Name</Label>
+                                            <Input 
+                                                id={`guest-name-${index}`}
+                                                placeholder="Name"
+                                                value={guest.name}
+                                                onChange={(e) => handleGuestChange(index, 'name', e.target.value)}
+                                            />
+                                        </div>
+                                        <div className="col-span-2">
+                                            <Label htmlFor={`guest-age-${index}`} className="sr-only">Age</Label>
+                                             <Input 
+                                                id={`guest-age-${index}`}
+                                                type="number"
+                                                placeholder="Age"
+                                                value={guest.age}
+                                                onChange={(e) => handleGuestChange(index, 'age', e.target.value)}
+                                            />
+                                        </div>
+                                        <div className="col-span-1">
+                                            {guests.length > 1 && (
+                                                <Button variant="ghost" size="icon" onClick={() => handleRemoveGuest(index)}>
+                                                    <Trash2 className="h-4 w-4" />
+                                                </Button>
+                                            )}
+                                        </div>
+                                    </div>
+                                ))}
+                            </div>
+                             <Button onClick={handleAddGuest} variant="outline" className="w-full">
+                                Add Guest
+                            </Button>
+                        </div>
+                    </PopoverContent>
+                </Popover>
+
                 <Button 
                   onClick={handleReserve}
-                  className="w-full mt-4 h-12 text-lg bg-accent text-accent-foreground hover:bg-accent/90"
+                  className="w-full h-12 text-lg bg-accent text-accent-foreground hover:bg-accent/90"
                 >
                   Reserve
                 </Button>
