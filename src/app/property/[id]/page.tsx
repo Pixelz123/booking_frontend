@@ -1,7 +1,7 @@
 'use client';
 
 import Image from 'next/image';
-import { notFound, useRouter } from 'next/navigation';
+import { notFound, useRouter, useParams } from 'next/navigation';
 import { allProperties } from '@/lib/data';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
@@ -22,7 +22,8 @@ const amenityIcons: { [key: string]: React.ReactNode } = {
 };
 
 
-export default function PropertyDetailPage({ params }: { params: { id: string } }) {
+export default function PropertyDetailPage() {
+  const params = useParams<{ id: string }>();
   const property = allProperties.find((p) => p.id === params.id);
   const router = useRouter();
   const { toast } = useToast();
