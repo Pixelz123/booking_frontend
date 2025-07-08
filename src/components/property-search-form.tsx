@@ -33,8 +33,8 @@ export function PropertySearchForm() {
     
     const payload = {
         locationQueryString: location,
-        checkInDate: date?.from ? format(date.from, 'yyyy-MM-dd') : null,
-        checkOutDate: date?.to ? format(date.to, 'yyyy-MM-dd') : null,
+        cheakIn: date?.from ? format(date.from, 'yyyy-MM-dd') : null,
+        cheakOut: date?.to ? format(date.to, 'yyyy-MM-dd') : null,
     };
     
     setSearchPayload(JSON.stringify(payload, null, 2));
