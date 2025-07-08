@@ -1,3 +1,4 @@
+
 'use client'; // Make this a client component
 
 import Link from "next/link";
@@ -38,7 +39,7 @@ export default function LoginPage() {
     
     const mockAuthResponse = {
       username: 'Max Robinson',
-      jwttoken: 'fake-jwt-token-for-prototype',
+      token: 'fake-jwt-token-for-prototype',
       roles: [role]
     };
 
@@ -50,7 +51,7 @@ export default function LoginPage() {
     if (loginData) {
       login(
         { username: loginData.username, roles: loginData.roles },
-        loginData.jwttoken
+        loginData.token
       );
       router.push('/');
     }

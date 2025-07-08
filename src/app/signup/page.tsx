@@ -1,3 +1,4 @@
+
 'use client';
 
 import Link from "next/link";
@@ -52,7 +53,7 @@ export default function SignupPage() {
 
     const mockAuthResponse = {
       username: `${firstName} ${lastName}`,
-      jwttoken: 'fake-jwt-token-for-prototype-signup',
+      token: 'fake-jwt-token-for-prototype-signup',
       roles: [role],
     };
 
@@ -64,7 +65,7 @@ export default function SignupPage() {
     if (signupData) {
       login(
         { username: signupData.username, roles: signupData.roles },
-        signupData.jwttoken
+        signupData.token
       );
       router.push('/');
     }
