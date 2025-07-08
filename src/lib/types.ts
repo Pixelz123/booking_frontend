@@ -20,7 +20,6 @@ export type Property = {
   reviewsCount: number;
   hostname: string;
   host_avatar_src: string;
-  amenities: string[];
 };
 
 export type Booking = {

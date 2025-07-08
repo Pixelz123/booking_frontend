@@ -8,7 +8,7 @@ import { Button } from '@/components/ui/button';
 import { Calendar } from '@/components/ui/calendar';
 import { Separator } from '@/components/ui/separator';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
-import { BedDouble, Bath, Users, Star, Wifi, Utensils, Wind, Trash2 } from 'lucide-react';
+import { BedDouble, Bath, Users, Star, Trash2 } from 'lucide-react';
 import { useState } from 'react';
 import { DateRange } from 'react-day-picker';
 import { useAuth } from '@/context/auth-context';
@@ -26,12 +26,6 @@ import {
   AlertDialogHeader, 
   AlertDialogTitle 
 } from '@/components/ui/alert-dialog';
-
-const amenityIcons: { [key: string]: React.ReactNode } = {
-  'Wifi': <Wifi className="h-5 w-5" />,
-  'Kitchen': <Utensils className="h-5 w-5" />,
-  'Air Conditioning': <Wind className="h-5 w-5" />,
-};
 
 type Guest = {
     name: string;
@@ -187,18 +181,7 @@ export default function PropertyDetailPage() {
             <Separator className="my-6" />
 
             <p className="text-foreground/90">{property.description}</p>
-            
-            <Separator className="my-6" />
-
-            <h3 className="text-xl font-bold font-headline mb-4">What this place offers</h3>
-            <div className="grid grid-cols-2 gap-4">
-              {property.amenities.map(amenity => (
-                <div key={amenity} className="flex items-center gap-3">
-                  {amenityIcons[amenity] || <Star className="h-5 w-5" />}
-                  <span>{amenity}</span>
-                </div>
-              ))}
-            </div>
+                      
           </div>
           
           {/* Booking Card */}

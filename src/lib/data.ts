@@ -22,7 +22,6 @@ export const allProperties: Property[] = [
     reviewsCount: 120,
     hostname: 'Alice Johnson',
     host_avatar_src: 'https://placehold.co/100x100.png',
-    amenities: ['Wifi', 'Kitchen', 'Air Conditioning', 'TV'],
   },
   {
     property_id: '2',
@@ -45,7 +44,6 @@ export const allProperties: Property[] = [
     reviewsCount: 85,
     hostname: 'Bob Williams',
     host_avatar_src: 'https://placehold.co/100x100.png',
-    amenities: ['Wifi', 'Kitchen', 'Beach Access', 'Free Parking'],
   },
   {
     property_id: '3',
@@ -68,7 +66,6 @@ export const allProperties: Property[] = [
     reviewsCount: 200,
     hostname: 'Claire Dubois',
     host_avatar_src: 'https://placehold.co/100x100.png',
-    amenities: ['Wifi', 'Kitchen', 'Elevator', 'Washer'],
   },
   {
     property_id: '4',
@@ -91,7 +88,6 @@ export const allProperties: Property[] = [
     reviewsCount: 150,
     hostname: 'Ken Tanaka',
     host_avatar_src: 'https://placehold.co/100x100.png',
-    amenities: ['Wifi', 'Kitchenette', 'Air Conditioning', 'Pocket Wifi'],
   },
   {
     property_id: '5',
@@ -114,7 +110,6 @@ export const allProperties: Property[] = [
     reviewsCount: 95,
     hostname: 'David Smith',
     host_avatar_src: 'https://placehold.co/100x100.png',
-    amenities: ['Wifi', 'Kitchen', 'Hot Tub', 'Fireplace'],
   },
   {
     property_id: '6',
@@ -137,7 +132,6 @@ export const allProperties: Property[] = [
     reviewsCount: 110,
     hostname: 'Emily Clark',
     host_avatar_src: 'https://placehold.co/100x100.png',
-    amenities: ['Wifi', 'Kitchen', 'Heating', 'Garden'],
   },
 ];
 

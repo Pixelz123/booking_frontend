@@ -16,7 +16,6 @@ import {
   SelectTrigger,
   SelectValue,
 } from '@/components/ui/select';
-import { Checkbox } from '@/components/ui/checkbox';
 import { Slider } from '@/components/ui/slider';
 
 export default function SearchPage() {
@@ -54,23 +53,6 @@ export default function SearchPage() {
                     <SelectItem value="studio">Studio</SelectItem>
                   </SelectContent>
                 </Select>
-              </div>
-              <div className="space-y-2">
-                <Label>Amenities</Label>
-                <div className="space-y-2">
-                  <div className="flex items-center space-x-2">
-                    <Checkbox id="wifi" />
-                    <Label htmlFor="wifi" className="font-normal">Wifi</Label>
-                  </div>
-                  <div className="flex items-center space-x-2">
-                    <Checkbox id="kitchen" />
-                    <Label htmlFor="kitchen" className="font-normal">Kitchen</Label>
-                  </div>
-                  <div className="flex items-center space-x-2">
-                    <Checkbox id="parking" />
-                    <Label htmlFor="parking" className="font-normal">Free Parking</Label>
-                  </div>
-                </div>
               </div>
               <Button className="w-full bg-accent text-accent-foreground hover:bg-accent/90">Apply Filters</Button>
             </CardContent>
