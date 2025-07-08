@@ -58,7 +58,7 @@ export default function MyBookingsPage() {
             <Card key={booking.bookingId} className="overflow-hidden md:flex shadow-md hover:shadow-lg transition-shadow duration-300">
               <div className="md:w-1/3 relative h-48 md:h-auto">
                 <Image
-                  src={booking.property.heroImage}
+                  src={booking.property.hero_image_src}
                   alt={booking.property.name}
                   layout="fill"
                   objectFit="cover"
@@ -86,7 +86,7 @@ export default function MyBookingsPage() {
                 </div>
                 <div className="mt-6 flex gap-4">
                   <Button asChild>
-                    <Link href={`/property/${booking.property.id}`}>View Property</Link>
+                    <Link href={`/property/${booking.property.property_id}`}>View Property</Link>
                   </Button>
                   <Button variant="outline">Manage Booking</Button>
                 </div>

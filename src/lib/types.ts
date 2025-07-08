@@ -1,26 +1,26 @@
+
 export type Property = {
-  id: string;
+  property_id: string;
   name: string;
-  type: string;
+  description: string;
   city: string;
+  state: string;
   country: string;
-  heroImage: string;
-  images: string[];
-  pricePerNight: number;
+  postal_code: number;
+  address: string;
+  price_per_night: number;
+  imageList: string[];
+  hero_image_src: string;
+  guests: number;
+  bedroom: number;
+  beds: number;
+  bathroom: number;
+  type: string;
   rating: number;
   reviewsCount: number;
-  host: {
-    name: string;
-    avatar: string;
-  };
-  details: {
-    guests: number;
-    bedrooms: number;
-    beds: number;
-    bathrooms: number;
-  };
+  hostname: string;
+  host_avatar_src: string;
   amenities: string[];
-  description: string;
 };
 
 export type Booking = {

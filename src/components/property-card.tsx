@@ -10,12 +10,12 @@ interface PropertyCardProps {
 
 export function PropertyCard({ property }: PropertyCardProps) {
   return (
-    <Link href={`/property/${property.id}`} className="group">
+    <Link href={`/property/${property.property_id}`} className="group">
       <Card className="w-full overflow-hidden transition-all duration-300 hover:shadow-xl">
         <CardContent className="p-0">
           <div className="relative">
             <Image
-              src={property.heroImage}
+              src={property.hero_image_src}
               alt={property.name}
               width={600}
               height={400}
@@ -33,7 +33,7 @@ export function PropertyCard({ property }: PropertyCardProps) {
             </div>
             <p className="text-sm text-muted-foreground">{property.city}, {property.country}</p>
             <p className="mt-2">
-              <span className="font-bold text-lg">${property.pricePerNight}</span>
+              <span className="font-bold text-lg">${property.price_per_night}</span>
               <span className="text-sm text-muted-foreground"> / night</span>
             </p>
           </div>

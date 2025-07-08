@@ -40,7 +40,7 @@ type Guest = {
 
 export default function PropertyDetailPage() {
   const params = useParams<{ id: string }>();
-  const property = allProperties.find((p) => p.id === params.id);
+  const property = allProperties.find((p) => p.property_id === params.id);
   const router = useRouter();
   const { toast } = useToast();
   const { isAuthenticated } = useAuth();
@@ -60,12 +60,12 @@ export default function PropertyDetailPage() {
   };
 
   const handleAddGuest = () => {
-    if (guests.length < property.details.guests) {
+    if (guests.length < property.guests) {
       setGuests([...guests, { name: '', age: '' }]);
     } else {
         toast({
             title: "Guest limit reached",
-            description: `This property can accommodate a maximum of ${property.details.guests} guests.`,
+            description: `This property can accommodate a maximum of ${property.guests} guests.`,
             variant: "destructive",
         });
     }
@@ -125,7 +125,7 @@ export default function PropertyDetailPage() {
     }
 
     const bookingRequest = {
-      propertyId: property.id,
+      propertyId: property.property_id,
       guestList: guests.map(g => ({ name: g.name, age: parseInt(g.age, 10) })),
       cheakIn: format(date.from, 'yyyy-MM-dd'),
       cheakOut: format(date.to, 'yyyy-MM-dd'),
@@ -155,7 +155,7 @@ export default function PropertyDetailPage() {
         <div className="mt-6 grid grid-cols-1 md:grid-cols-2 gap-2">
             <div className="relative h-[400px] md:h-[500px] col-span-1 md:col-span-2">
                  <Image
-                    src={property.heroImage}
+                    src={property.hero_image_src}
                     alt={property.name}
                     layout="fill"
                     objectFit="cover"
@@ -171,16 +171,16 @@ export default function PropertyDetailPage() {
           <div className="lg:col-span-2">
             <div className="flex justify-between items-start">
               <div>
-                <h2 className="text-2xl font-bold font-headline">{property.type} hosted by {property.host.name}</h2>
+                <h2 className="text-2xl font-bold font-headline">{property.type} hosted by {property.hostname}</h2>
                 <div className="flex items-center gap-4 text-muted-foreground mt-1">
-                  <div className="flex items-center gap-2"><Users className="h-5 w-5" /> {property.details.guests} guests</div>
-                  <div className="flex items-center gap-2"><BedDouble className="h-5 w-5" /> {property.details.bedrooms} bedrooms</div>
-                  <div className="flex items-center gap-2"><Bath className="h-5 w-5" /> {property.details.bathrooms} bathrooms</div>
+                  <div className="flex items-center gap-2"><Users className="h-5 w-5" /> {property.guests} guests</div>
+                  <div className="flex items-center gap-2"><BedDouble className="h-5 w-5" /> {property.bedroom} bedrooms</div>
+                  <div className="flex items-center gap-2"><Bath className="h-5 w-5" /> {property.bathroom} bathrooms</div>
                 </div>
               </div>
               <Avatar className="h-16 w-16">
-                <AvatarImage src={property.host.avatar} alt={property.host.name} data-ai-hint="person portrait" />
-                <AvatarFallback>{property.host.name.charAt(0)}</AvatarFallback>
+                <AvatarImage src={property.host_avatar_src} alt={property.hostname} data-ai-hint="person portrait" />
+                <AvatarFallback>{property.hostname.charAt(0)}</AvatarFallback>
               </Avatar>
             </div>
             
@@ -206,7 +206,7 @@ export default function PropertyDetailPage() {
             <Card className="sticky top-24 shadow-lg">
               <CardHeader>
                 <CardTitle className="font-headline">
-                  <span className="text-2xl font-bold">${property.pricePerNight}</span>
+                  <span className="text-2xl font-bold">${property.price_per_night}</span>
                   <span className="text-base font-normal text-muted-foreground"> / night</span>
                 </CardTitle>
               </CardHeader>
@@ -232,7 +232,7 @@ export default function PropertyDetailPage() {
                             <div className="space-y-2">
                                 <h4 className="font-medium leading-none">Guests</h4>
                                 <p className="text-sm text-muted-foreground">
-                                    This property accommodates {property.details.guests} guests max.
+                                    This property accommodates {property.guests} guests max.
                                 </p>
                             </div>
                             <div className="grid gap-2 max-h-60 overflow-y-auto pr-2">
