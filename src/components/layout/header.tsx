@@ -35,7 +35,7 @@ export function Header() {
             href="/host/submit-property"
             className="text-foreground/80 transition-colors hover:text-foreground"
           >
-            List your Property
+            Become a Host
           </Link>
         </nav>
         <div className="flex items-center gap-2">
