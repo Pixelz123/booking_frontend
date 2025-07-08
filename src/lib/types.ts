@@ -22,3 +22,12 @@ export type Property = {
   amenities: string[];
   description: string;
 };
+
+export type Booking = {
+  bookingId: string;
+  property: Property;
+  checkIn: string;
+  checkOut: string;
+  guests: number;
+  totalPrice: number;
+};

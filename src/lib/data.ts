@@ -1,4 +1,4 @@
-import type { Property } from './types';
+import type { Property, Booking } from './types';
 
 export const allProperties: Property[] = [
   {
@@ -100,3 +100,22 @@ export const allProperties: Property[] = [
 ];
 
 export const featuredProperties = allProperties.slice(0, 4);
+
+export const myBookings: Booking[] = [
+  {
+    bookingId: 'booking-1',
+    property: allProperties[2],
+    checkIn: '2024-08-15',
+    checkOut: '2024-08-20',
+    guests: 2,
+    totalPrice: 1750,
+  },
+  {
+    bookingId: 'booking-2',
+    property: allProperties[4],
+    checkIn: '2024-09-10',
+    checkOut: '2024-09-15',
+    guests: 4,
+    totalPrice: 2750,
+  }
+];

@@ -55,7 +55,7 @@ export function Header() {
                   </DropdownMenuItem>
                 )}
                  <DropdownMenuItem asChild>
-                     <Link href="#">My Bookings</Link>
+                     <Link href="/bookings">My Bookings</Link>
                   </DropdownMenuItem>
                 <DropdownMenuSeparator />
                 <DropdownMenuItem onClick={logout}>
