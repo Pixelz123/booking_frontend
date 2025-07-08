@@ -17,6 +17,15 @@ import { differenceInDays, format } from 'date-fns';
 import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
 import { Label } from '@/components/ui/label';
 import { Input } from '@/components/ui/input';
+import { 
+  AlertDialog, 
+  AlertDialogAction, 
+  AlertDialogContent, 
+  AlertDialogDescription, 
+  AlertDialogFooter, 
+  AlertDialogHeader, 
+  AlertDialogTitle 
+} from '@/components/ui/alert-dialog';
 
 const amenityIcons: { [key: string]: React.ReactNode } = {
   'Wifi': <Wifi className="h-5 w-5" />,
@@ -37,6 +46,8 @@ export default function PropertyDetailPage() {
   const { isAuthenticated } = useAuth();
   const [date, setDate] = useState<DateRange | undefined>();
   const [guests, setGuests] = useState<Guest[]>([{ name: '', age: '' }]);
+  const [bookingPayload, setBookingPayload] = useState<string>('');
+  const [isAlertOpen, setIsAlertOpen] = useState(false);
 
   if (!property) {
     notFound();
@@ -120,12 +131,8 @@ export default function PropertyDetailPage() {
       cheakOut: format(date.to, 'yyyy-MM-dd'),
     };
 
-    console.log("Booking Request Payload:", JSON.stringify(bookingRequest, null, 2));
-
-    toast({
-      title: "Reservation Submitted!",
-      description: `Your booking for ${property.name} with ${guests.length} guest(s) has been requested.`,
-    });
+    setBookingPayload(JSON.stringify(bookingRequest, null, 2));
+    setIsAlertOpen(true);
   };
 
   return (
@@ -279,6 +286,34 @@ export default function PropertyDetailPage() {
           </div>
         </div>
       </div>
+      <AlertDialog open={isAlertOpen} onOpenChange={setIsAlertOpen}>
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle>Booking Request Payload</AlertDialogTitle>
+            <AlertDialogDescription>
+              Here is the JSON payload that would be sent to the backend:
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <div className="my-4 max-h-60 overflow-y-auto rounded-md border bg-muted p-4">
+            <pre className="text-sm text-muted-foreground">
+              <code>{bookingPayload}</code>
+            </pre>
+          </div>
+          <AlertDialogFooter>
+            <AlertDialogAction
+              onClick={() => {
+                setIsAlertOpen(false);
+                toast({
+                  title: "Reservation Submitted!",
+                  description: `Your booking for ${property.name} with ${guests.length} guest(s) has been requested.`,
+                });
+              }}
+            >
+              Confirm & Close
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
     </div>
   );
 }
