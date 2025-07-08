@@ -44,9 +44,13 @@ export default function SignupPage() {
       setIsLoading(false);
       return;
     }
+    
+    const endpoint = role === 'HOST' 
+      ? '/api/auth/register/host' 
+      : '/api/auth/register/user';
 
     try {
-      const response = await fetch('/api/auth/register', {
+      const response = await fetch(endpoint, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ 
@@ -54,8 +58,7 @@ export default function SignupPage() {
             lastName, 
             email, 
             password, 
-            username: `${firstName} ${lastName}`, 
-            roles: [role] 
+            username: `${firstName} ${lastName}`,
         }),
       });
 
