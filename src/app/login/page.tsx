@@ -30,7 +30,7 @@ import {
 export default function LoginPage() {
   const router = useRouter();
   const { login } = useAuth();
-  const [email, setEmail] = useState('m@example.com');
+  const [username, setUsername] = useState('Max Robinson');
   const [password, setPassword] = useState('password');
   const [role, setRole] = useState('USER');
   const [requestPayload, setRequestPayload] = useState<any>(null);
@@ -40,7 +40,7 @@ export default function LoginPage() {
     event.preventDefault();
     
     const payload = {
-      email,
+      username,
       password,
     };
 
@@ -51,7 +51,7 @@ export default function LoginPage() {
   const confirmLogin = () => {
     // Simulate a successful API response
     const mockAuthResponse = {
-      username: 'Max Robinson',
+      username: username,
       token: 'fake-jwt-token-for-prototype',
       roles: [role]
     };
@@ -78,20 +78,20 @@ export default function LoginPage() {
           <CardHeader>
             <CardTitle className="text-2xl font-headline">Login</CardTitle>
             <CardDescription>
-              Enter your email below to login to your account
+              Enter your username below to login to your account
             </CardDescription>
           </CardHeader>
           <CardContent>
             <form onSubmit={handleLogin}>
               <div className="grid gap-4">
                 <div className="grid gap-2">
-                  <Label htmlFor="email">Email</Label>
+                  <Label htmlFor="username">Username</Label>
                   <Input
-                    id="email"
-                    type="email"
-                    placeholder="m@example.com"
-                    value={email}
-                    onChange={(e) => setEmail(e.target.value)}
+                    id="username"
+                    type="text"
+                    placeholder="Your username"
+                    value={username}
+                    onChange={(e) => setUsername(e.target.value)}
                     required
                   />
                 </div>
