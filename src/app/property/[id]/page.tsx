@@ -42,6 +42,8 @@ export default function PropertyDetailPage() {
   const [guests, setGuests] = useState<Guest[]>([{ name: '', age: '' }]);
   const [bookingPayload, setBookingPayload] = useState<string>('');
   const [isAlertOpen, setIsAlertOpen] = useState(false);
+  const [propertyJson, setPropertyJson] = useState('');
+  const [isPropertyAlertOpen, setIsPropertyAlertOpen] = useState(false);
 
   if (!property) {
     notFound();
@@ -69,6 +71,11 @@ export default function PropertyDetailPage() {
     const newGuests = guests.filter((_, i) => i !== index);
     setGuests(newGuests);
   };
+  
+  const handleViewPropertyJson = () => {
+    setPropertyJson(JSON.stringify(property, null, 2));
+    setIsPropertyAlertOpen(true);
+  }
 
   const handleReserve = () => {
     if (!isAuthenticated) {
@@ -134,7 +141,10 @@ export default function PropertyDetailPage() {
       <div className="container mx-auto px-4 md:px-6 py-12">
         {/* Title and Info Header */}
         <div>
-          <h1 className="text-4xl font-bold font-headline">{property.name}</h1>
+          <div className="flex items-center justify-between">
+            <h1 className="text-4xl font-bold font-headline">{property.name}</h1>
+            <Button variant="outline" onClick={handleViewPropertyJson}>View Property JSON</Button>
+          </div>
           <div className="flex items-center gap-4 text-muted-foreground mt-2">
             <div className="flex items-center gap-1">
               <Star className="w-4 h-4 fill-accent text-accent" />
@@ -293,6 +303,27 @@ export default function PropertyDetailPage() {
               }}
             >
               Confirm & Close
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
+      
+      <AlertDialog open={isPropertyAlertOpen} onOpenChange={setIsPropertyAlertOpen}>
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle>Property Data (JSON)</AlertDialogTitle>
+            <AlertDialogDescription>
+              This is the full JSON data object for the property being viewed.
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <div className="my-4 max-h-60 overflow-y-auto rounded-md border bg-muted p-4">
+            <pre className="text-sm text-muted-foreground">
+              <code>{propertyJson}</code>
+            </pre>
+          </div>
+          <AlertDialogFooter>
+            <AlertDialogAction onClick={() => setIsPropertyAlertOpen(false)}>
+              Close
             </AlertDialogAction>
           </AlertDialogFooter>
         </AlertDialogContent>
