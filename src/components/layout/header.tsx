@@ -25,6 +25,7 @@ export function Header() {
   const { toast } = useToast();
 
   const handleBecomeHost = async () => {
+    // This action is only available to authenticated users, but we double-check.
     if (!isAuthenticated || !token) {
         toast({ title: "Please log in first", variant: "destructive" });
         router.push('/login');
@@ -45,17 +46,16 @@ export function Header() {
             throw new Error(errorData.message || "Failed to upgrade your account.");
         }
 
-        const updatedUser: { username: string, roles: string[] } = await response.json();
-
-        // Update the auth context with the new user roles
-        login(updatedUser, token);
+        // The backend has updated the user's role. Now, log them out.
+        logout();
 
         toast({
-            title: "Congratulations!",
-            description: "You are now a host. Redirecting you to your dashboard.",
+            title: "Account Upgraded!",
+            description: "You are now a host. Please log in again to access host features.",
         });
 
-        router.push('/host/my-properties');
+        // Redirect to login page for re-authentication as a host.
+        router.push('/login');
 
     } catch (error) {
         const errorMessage = error instanceof Error ? error.message : 'An unexpected error occurred';
