@@ -1,5 +1,7 @@
+'use client';
+
 import Image from 'next/image';
-import { notFound } from 'next/navigation';
+import { notFound, useRouter } from 'next/navigation';
 import { allProperties } from '@/lib/data';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
@@ -7,6 +9,11 @@ import { Calendar } from '@/components/ui/calendar';
 import { Separator } from '@/components/ui/separator';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { BedDouble, Bath, Users, Star, Wifi, Utensils, Wind } from 'lucide-react';
+import { useState } from 'react';
+import { DateRange } from 'react-day-picker';
+import { useAuth } from '@/context/auth-context';
+import { useToast } from '@/hooks/use-toast';
+import { differenceInDays, format } from 'date-fns';
 
 const amenityIcons: { [key: string]: React.ReactNode } = {
   'Wifi': <Wifi className="h-5 w-5" />,
@@ -17,10 +24,62 @@ const amenityIcons: { [key: string]: React.ReactNode } = {
 
 export default function PropertyDetailPage({ params }: { params: { id: string } }) {
   const property = allProperties.find((p) => p.id === params.id);
+  const router = useRouter();
+  const { toast } = useToast();
+  const { isAuthenticated, user } = useAuth();
+  const [date, setDate] = useState<DateRange | undefined>();
 
   if (!property) {
     notFound();
   }
+
+  const handleReserve = () => {
+    if (!isAuthenticated) {
+      toast({
+        title: "Authentication Required",
+        description: "Please log in to make a reservation.",
+        variant: "destructive",
+      });
+      router.push('/login');
+      return;
+    }
+
+    if (!date || !date.from || !date.to) {
+      toast({
+        title: "Dates not selected",
+        description: "Please select a check-in and check-out date.",
+        variant: "destructive",
+      });
+      return;
+    }
+
+    const nights = differenceInDays(date.to, date.from);
+     if (nights <= 0) {
+        toast({
+            title: "Invalid Date Range",
+            description: "Check-out date must be after the check-in date.",
+            variant: "destructive",
+        });
+        return;
+    }
+    const totalPrice = nights * property.pricePerNight;
+
+    const bookingRequest = {
+      propertyId: property.id,
+      userId: user?.username, // In a real app, this would be a user ID
+      checkInDate: format(date.from, 'yyyy-MM-dd'),
+      checkOutDate: format(date.to, 'yyyy-MM-dd'),
+      nights,
+      totalPrice,
+    };
+
+    console.log("Booking Request Payload:", JSON.stringify(bookingRequest, null, 2));
+
+    toast({
+      title: "Reservation Submitted!",
+      description: `Your booking for ${property.name} has been requested. Total: $${totalPrice}`,
+    });
+  };
 
   return (
     <div className="bg-background">
@@ -102,8 +161,14 @@ export default function PropertyDetailPage({ params }: { params: { id: string } 
                   mode="range"
                   numberOfMonths={1}
                   className="p-0"
+                  selected={date}
+                  onSelect={setDate}
+                  disabled={{ before: new Date() }}
                 />
-                <Button className="w-full mt-4 h-12 text-lg bg-accent text-accent-foreground hover:bg-accent/90">
+                <Button 
+                  onClick={handleReserve}
+                  className="w-full mt-4 h-12 text-lg bg-accent text-accent-foreground hover:bg-accent/90"
+                >
                   Reserve
                 </Button>
                 <p className="text-center text-sm text-muted-foreground mt-2">You won't be charged yet</p>
