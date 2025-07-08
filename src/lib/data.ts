@@ -135,15 +135,6 @@ export const allProperties: PropertyDetail[] = [
   },
 ];
 
-export const featuredProperties: PropertySummary[] = allProperties.slice(0, 4).map(p => ({
-  propertyId: p.property_id,
-  hostname: p.hostname,
-  city: p.city,
-  heroImageSrc: p.hero_image_src,
-  price_per_night: p.price_per_night,
-  name: p.name,
-}));
-
 export const myBookings: Booking[] = [
   {
     bookingId: 'booking-1',
