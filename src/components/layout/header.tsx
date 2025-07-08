@@ -1,7 +1,7 @@
 'use client';
 
 import Link from 'next/link';
-import { Button } from '@/components/ui/button';
+import { Button, buttonVariants } from '@/components/ui/button';
 import { Home, LogIn, UserPlus, LogOut, UserCircle, PlusCircle } from 'lucide-react';
 import { useAuth } from '@/context/auth-context';
 import {
@@ -12,6 +12,7 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
+import { cn } from '@/lib/utils';
 
 export function Header() {
   const { isAuthenticated, user, logout } = useAuth();
@@ -74,18 +75,14 @@ export function Header() {
             </DropdownMenu>
           ) : (
             <>
-              <Button variant="ghost" size="sm" asChild>
-                <Link href="/login">
-                  <LogIn className="mr-2 h-4 w-4" />
-                  Login
-                </Link>
-              </Button>
-              <Button size="sm" asChild className="bg-accent text-accent-foreground hover:bg-accent/90">
-                <Link href="/signup">
-                  <UserPlus className="mr-2 h-4 w-4" />
-                  Sign Up
-                </Link>
-              </Button>
+              <Link href="/login" className={cn(buttonVariants({ variant: 'ghost', size: 'sm' }))}>
+                <LogIn className="h-4 w-4" />
+                Login
+              </Link>
+              <Link href="/signup" className={cn(buttonVariants({ size: 'sm' }), 'bg-accent text-accent-foreground hover:bg-accent/90')}>
+                <UserPlus className="h-4 w-4" />
+                Sign Up
+              </Link>
             </>
           )}
         </div>
