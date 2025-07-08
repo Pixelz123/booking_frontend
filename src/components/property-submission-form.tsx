@@ -253,7 +253,7 @@ export function PropertySubmissionForm() {
                     <FormItem>
                       <FormLabel>Postal Code</FormLabel>
                       <FormControl>
-                        <Input type="number" placeholder="e.g. 75001" {...field} />
+                        <Input type="number" placeholder="e.g. 75001" {...field} value={field.value ?? ''} />
                       </FormControl>
                       <FormMessage />
                     </FormItem>
