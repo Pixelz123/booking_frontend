@@ -2,7 +2,7 @@
 'use client';
 
 import Link from "next/link";
-import { useRouter } from "next/navigation";
+import { useRouter, useSearchParams } from "next/navigation";
 import { Button } from "@/components/ui/button";
 import {
   Card,
@@ -16,20 +16,28 @@ import { Label } from "@/components/ui/label";
 import { Home } from "lucide-react";
 import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
 import { useAuth } from "@/context/auth-context";
-import React, { useState } from "react";
+import React, { useState, Suspense, useEffect } from "react";
 import { useToast } from "@/hooks/use-toast";
 
-
-export default function SignupPage() {
+function SignupPageContent() {
   const router = useRouter();
+  const searchParams = useSearchParams();
   const { login } = useAuth();
   const { toast } = useToast();
-  const [role, setRole] = useState('USER');
+  
+  const initialRole = searchParams.get('role') === 'HOST' ? 'HOST' : 'USER';
+  const [role, setRole] = useState(initialRole);
+  
   const [firstName, setFirstName] = useState('');
   const [lastName, setLastName] = useState('');
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [isLoading, setIsLoading] = useState(false);
+
+  useEffect(() => {
+    const roleFromQuery = searchParams.get('role');
+    setRole(roleFromQuery === 'HOST' ? 'HOST' : 'USER');
+  }, [searchParams]);
 
   const handleSignup = async (event: React.FormEvent) => {
     event.preventDefault();
@@ -173,7 +181,6 @@ export default function SignupPage() {
                 <div className="grid gap-2">
                   <Label>Sign up as a</Label>
                   <RadioGroup 
-                    defaultValue="USER" 
                     value={role}
                     onValueChange={setRole}
                     className="flex gap-4"
@@ -206,5 +213,14 @@ export default function SignupPage() {
           </CardContent>
         </Card>
       </div>
+  )
+}
+
+
+export default function SignupPage() {
+  return (
+    <Suspense fallback={<div>Loading...</div>}>
+      <SignupPageContent />
+    </Suspense>
   )
 }

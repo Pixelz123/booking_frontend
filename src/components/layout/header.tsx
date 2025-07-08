@@ -1,3 +1,4 @@
+
 'use client';
 
 import Link from 'next/link';
@@ -31,12 +32,23 @@ export function Header() {
           >
             Search
           </Link>
-          <Link
-            href="/host/submit-property"
-            className="text-foreground/80 transition-colors hover:text-foreground"
-          >
-            Become a Host
-          </Link>
+          
+          {user?.roles.includes('HOST') ? (
+            <Link
+              href="/host/my-properties"
+              className="text-foreground/80 transition-colors hover:text-foreground"
+            >
+              Host Dashboard
+            </Link>
+          ) : (
+            <Link
+              href="/signup?role=HOST"
+              className="text-foreground/80 transition-colors hover:text-foreground"
+            >
+              Become a Host
+            </Link>
+          )}
+
         </nav>
         <div className="flex items-center gap-2">
           {isAuthenticated && user ? (
