@@ -44,6 +44,7 @@ export default function MyBookingsPage() {
       property: {
         property_id: booking.property.property_id,
         name: booking.property.name,
+        hostname: booking.property.hostname,
         city: booking.property.city,
         country: booking.property.country,
         hero_image_src: booking.property.hero_image_src,
@@ -102,6 +103,7 @@ export default function MyBookingsPage() {
                   <div>
                     <p className="text-sm text-muted-foreground">{booking.property.city}, {booking.property.country}</p>
                     <h2 className="text-2xl font-bold font-headline mt-1">{booking.property.name}</h2>
+                    <p className="text-sm text-muted-foreground mt-1">Hosted by {booking.property.hostname}</p>
                     <div className="flex flex-wrap items-center gap-x-6 gap-y-2 text-muted-foreground mt-4">
                       <div className="flex items-center gap-2">
                         <Calendar className="w-4 h-4" />
