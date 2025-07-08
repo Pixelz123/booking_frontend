@@ -42,8 +42,17 @@ export default function LoginPage() {
       });
 
       if (!response.ok) {
-        const errorData = await response.json();
-        throw new Error(errorData.message || 'Login failed');
+        let errorMessage = `Login failed: ${response.statusText}`;
+        try {
+            const errorData = await response.json();
+            if (errorData && errorData.message) {
+                errorMessage = errorData.message;
+            }
+        } catch (jsonError) {
+            // The response body was not JSON. The default error message is sufficient.
+            console.error("Could not parse error response as JSON:", jsonError);
+        }
+        throw new Error(errorMessage);
       }
 
       const data = await response.json();

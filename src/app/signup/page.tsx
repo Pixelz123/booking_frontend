@@ -60,8 +60,16 @@ export default function SignupPage() {
       });
 
       if (!response.ok) {
-        const errorData = await response.json();
-        throw new Error(errorData.message || 'Signup failed');
+        let errorMessage = `Signup failed: ${response.statusText}`;
+        try {
+            const errorData = await response.json();
+            if (errorData && errorData.message) {
+                errorMessage = errorData.message;
+            }
+        } catch (jsonError) {
+            console.error("Could not parse error response as JSON:", jsonError);
+        }
+        throw new Error(errorMessage);
       }
 
       const data = await response.json();
