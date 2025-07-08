@@ -1,12 +1,13 @@
 'use client';
 
-import { useForm } from 'react-hook-form';
+import { useForm, useFieldArray } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { z } from 'zod';
 import { Button } from '@/components/ui/button';
 import {
   Form,
   FormControl,
+  FormDescription,
   FormField,
   FormItem,
   FormLabel,
@@ -17,30 +18,37 @@ import { Textarea } from '@/components/ui/textarea';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { useState } from 'react';
 import { useToast } from '@/hooks/use-toast';
-import { 
-  AlertDialog, 
-  AlertDialogAction, 
-  AlertDialogContent, 
-  AlertDialogDescription, 
-  AlertDialogFooter, 
-  AlertDialogHeader, 
-  AlertDialogTitle 
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
 } from '@/components/ui/alert-dialog';
-
+import { PlusCircle, Trash2 } from 'lucide-react';
 
 const propertySchema = z.object({
   name: z.string().min(5, 'Property name must be at least 5 characters.'),
   description: z.string().min(20, 'Description must be at least 20 characters.'),
+  hero_image_src: z
+    .string()
+    .url({ message: 'Please enter a valid URL.' })
+    .min(1, 'Hero image is required.'),
+  imageList: z
+    .array(z.object({ value: z.string().url({ message: 'Please enter a valid URL.' }) }))
+    .min(1, 'At least one additional image is required.'),
   address: z.string().min(5, 'Address is required.'),
   city: z.string().min(2, 'City is required.'),
   state: z.string().min(2, 'State is required.'),
   country: z.string().min(2, 'Country is required.'),
   postal_code: z.coerce.number().min(1000, 'Please enter a valid postal code.'),
-  pricePerNight: z.coerce.number().min(1, 'Price must be greater than 0.'),
+  price_per_night: z.coerce.number().min(1, 'Price must be greater than 0.'),
   guests: z.coerce.number().min(1, 'Must accommodate at least 1 guest.'),
-  bedrooms: z.coerce.number().min(1, 'Must have at least 1 bedroom.'),
+  bedroom: z.coerce.number().min(1, 'Must have at least 1 bedroom.'),
   beds: z.coerce.number().min(1, 'Must have at least 1 bed.'),
-  bathrooms: z.coerce.number().min(1, 'Must have at least 1 bathroom.'),
+  bathroom: z.coerce.number().min(1, 'Must have at least 1 bathroom.'),
 });
 
 export function PropertySubmissionForm() {
@@ -58,17 +66,28 @@ export function PropertySubmissionForm() {
       state: '',
       country: '',
       postal_code: undefined,
-      pricePerNight: 100,
+      price_per_night: 100,
       guests: 2,
-      bedrooms: 1,
+      bedroom: 1,
       beds: 1,
-      bathrooms: 1,
+      bathroom: 1,
+      hero_image_src: '',
+      imageList: [{ value: '' }],
     },
   });
 
+  const { fields, append, remove } = useFieldArray({
+    control: form.control,
+    name: 'imageList',
+  });
+
   function onSubmit(values: z.infer<typeof propertySchema>) {
-    // In a real app, you would also add hostname, property_id, and image URLs.
-    setSubmissionPayload(JSON.stringify(values, null, 2));
+    // In a real app, you would also add hostname, property_id.
+    const submissionData = {
+      ...values,
+      imageList: values.imageList.map((item) => item.value),
+    };
+    setSubmissionPayload(JSON.stringify(submissionData, null, 2));
     setIsAlertOpen(true);
   }
 
@@ -108,7 +127,68 @@ export function PropertySubmissionForm() {
                   </FormItem>
                 )}
               />
-              
+
+              <FormField
+                control={form.control}
+                name="hero_image_src"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>Hero Image URL</FormLabel>
+                    <FormControl>
+                      <Input placeholder="https://example.com/hero-image.png" {...field} />
+                    </FormControl>
+                    <FormDescription>This is the main image shown in listings.</FormDescription>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+
+              <div>
+                <FormLabel>Additional Images</FormLabel>
+                <FormDescription className="mb-4">
+                  Add URLs for other property images.
+                </FormDescription>
+                <div className="space-y-4">
+                  {fields.map((field, index) => (
+                    <FormField
+                      control={form.control}
+                      key={field.id}
+                      name={`imageList.${index}.value`}
+                      render={({ field }) => (
+                        <FormItem>
+                          <div className="flex items-center gap-2">
+                            <FormControl>
+                              <Input placeholder="https://example.com/image.png" {...field} />
+                            </FormControl>
+                            {fields.length > 1 && (
+                              <Button
+                                type="button"
+                                variant="ghost"
+                                size="icon"
+                                onClick={() => remove(index)}
+                              >
+                                <Trash2 className="h-4 w-4" />
+                              </Button>
+                            )}
+                          </div>
+                          <FormMessage />
+                        </FormItem>
+                      )}
+                    />
+                  ))}
+                </div>
+                <Button
+                  type="button"
+                  variant="outline"
+                  size="sm"
+                  className="mt-4"
+                  onClick={() => append({ value: '' })}
+                >
+                  <PlusCircle className="mr-2" />
+                  Add Image
+                </Button>
+              </div>
+
               <FormField
                 control={form.control}
                 name="address"
@@ -124,91 +204,130 @@ export function PropertySubmissionForm() {
               />
 
               <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
-                  <FormField
-                      control={form.control}
-                      name="city"
-                      render={({ field }) => (
-                          <FormItem>
-                          <FormLabel>City</FormLabel>
-                          <FormControl>
-                              <Input placeholder="e.g. Paris" {...field} />
-                          </FormControl>
-                          <FormMessage />
-                          </FormItem>
-                      )}
-                  />
-                  <FormField
-                      control={form.control}
-                      name="state"
-                      render={({ field }) => (
-                          <FormItem>
-                          <FormLabel>State / Province</FormLabel>
-                          <FormControl>
-                              <Input placeholder="e.g. Île-de-France" {...field} />
-                          </FormControl>
-                          <FormMessage />
-                          </FormItem>
-                      )}
-                  />
-              </div>
-
-               <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
-                  <FormField
-                      control={form.control}
-                      name="country"
-                      render={({ field }) => (
-                          <FormItem>
-                          <FormLabel>Country</FormLabel>
-                          <FormControl>
-                              <Input placeholder="e.g. France" {...field} />
-                          </FormControl>
-                          <FormMessage />
-                          </FormItem>
-                      )}
-                  />
-                   <FormField
-                      control={form.control}
-                      name="postal_code"
-                      render={({ field }) => (
-                          <FormItem>
-                          <FormLabel>Postal Code</FormLabel>
-                          <FormControl>
-                              <Input type="number" placeholder="e.g. 75001" {...field} />
-                          </FormControl>
-                          <FormMessage />
-                          </FormItem>
-                      )}
-                  />
-              </div>
-              
-              <FormField
+                <FormField
                   control={form.control}
-                  name="pricePerNight"
+                  name="city"
                   render={({ field }) => (
-                      <FormItem>
-                      <FormLabel>Price per night ($)</FormLabel>
+                    <FormItem>
+                      <FormLabel>City</FormLabel>
                       <FormControl>
-                          <Input type="number" {...field} />
+                        <Input placeholder="e.g. Paris" {...field} />
                       </FormControl>
                       <FormMessage />
-                      </FormItem>
+                    </FormItem>
                   )}
+                />
+                <FormField
+                  control={form.control}
+                  name="state"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel>State / Province</FormLabel>
+                      <FormControl>
+                        <Input placeholder="e.g. Île-de-France" {...field} />
+                      </FormControl>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+              </div>
+
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
+                <FormField
+                  control={form.control}
+                  name="country"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel>Country</FormLabel>
+                      <FormControl>
+                        <Input placeholder="e.g. France" {...field} />
+                      </FormControl>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+                <FormField
+                  control={form.control}
+                  name="postal_code"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel>Postal Code</FormLabel>
+                      <FormControl>
+                        <Input type="number" placeholder="e.g. 75001" {...field} />
+                      </FormControl>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+              </div>
+
+              <FormField
+                control={form.control}
+                name="price_per_night"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>Price per night ($)</FormLabel>
+                    <FormControl>
+                      <Input type="number" {...field} />
+                    </FormControl>
+                    <FormMessage />
+                  </FormItem>
+                )}
               />
-              
 
               <div className="grid grid-cols-1 md:grid-cols-4 gap-8">
-                  <FormField control={form.control} name="guests" render={({ field }) => (
-                      <FormItem><FormLabel>Guests</FormLabel><FormControl><Input type="number" {...field} /></FormControl><FormMessage /></FormItem>
-                  )}/>
-                  <FormField control={form.control} name="bedrooms" render={({ field }) => (
-                      <FormItem><FormLabel>Bedrooms</FormLabel><FormControl><Input type="number" {...field} /></FormControl><FormMessage /></FormItem>
-                  )}/>
-                  <FormField control={form.control} name="beds" render={({ field }) => (
-                      <FormItem><FormLabel>Beds</FormLabel><FormControl><Input type="number" {...field} /></FormControl><FormMessage /></FormItem>
-                  )}/>
-                  <FormField control={form.control} name="bathrooms" render={({ field }) => (
-                      <FormItem><FormLabel>Bathrooms</FormLabel><FormControl><Input type="number" {...field} /></FormControl><FormMessage /></FormItem>
-                  )}/>
+                <FormField
+                  control={form.control}
+                  name="guests"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel>Guests</FormLabel>
+                      <FormControl>
+                        <Input type="number" {...field} />
+                      </FormControl>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+                <FormField
+                  control={form.control}
+                  name="bedroom"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel>Bedrooms</FormLabel>
+                      <FormControl>
+                        <Input type="number" {...field} />
+                      </FormControl>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+                <FormField
+                  control={form.control}
+                  name="beds"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel>Beds</FormLabel>
+                      <FormControl>
+                        <Input type="number" {...field} />
+                      </FormControl>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+                <FormField
+                  control={form.control}
+                  name="bathroom"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel>Bathrooms</FormLabel>
+                      <FormControl>
+                        <Input type="number" {...field} />
+                      </FormControl>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
               </div>
 
               <Button type="submit" className="w-full h-11 bg-primary text-primary-foreground hover:bg-primary/90">
@@ -219,31 +338,33 @@ export function PropertySubmissionForm() {
         </CardContent>
       </Card>
       <AlertDialog open={isAlertOpen} onOpenChange={setIsAlertOpen}>
-          <AlertDialogContent>
-              <AlertDialogHeader>
-                  <AlertDialogTitle>Property Submission Payload</AlertDialogTitle>
-                  <AlertDialogDescription>
-                      This is the JSON data that would be sent to the backend.
-                  </AlertDialogDescription>
-              </AlertDialogHeader>
-              <div className="my-4 max-h-60 overflow-y-auto rounded-md border bg-muted p-4">
-                  <pre className="text-sm text-muted-foreground">
-                      <code>{submissionPayload}</code>
-                  </pre>
-              </div>
-              <AlertDialogFooter>
-                  <AlertDialogAction onClick={() => {
-                      setIsAlertOpen(false);
-                      form.reset();
-                      toast({
-                          title: "Property Submitted!",
-                          description: "Your property has been successfully listed (simulation).",
-                      });
-                  }}>
-                      Confirm & Close
-                  </AlertDialogAction>
-              </AlertDialogFooter>
-          </AlertDialogContent>
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle>Property Submission Payload</AlertDialogTitle>
+            <AlertDialogDescription>
+              This is the JSON data that would be sent to the backend.
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <div className="my-4 max-h-60 overflow-y-auto rounded-md border bg-muted p-4">
+            <pre className="text-sm text-muted-foreground">
+              <code>{submissionPayload}</code>
+            </pre>
+          </div>
+          <AlertDialogFooter>
+            <AlertDialogAction
+              onClick={() => {
+                setIsAlertOpen(false);
+                form.reset();
+                toast({
+                  title: 'Property Submitted!',
+                  description: 'Your property has been successfully listed (simulation).',
+                });
+              }}
+            >
+              Confirm & Close
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
       </AlertDialog>
     </>
   );
