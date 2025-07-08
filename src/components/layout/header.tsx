@@ -50,7 +50,7 @@ export function Header() {
               <DropdownMenuContent align="end" className="w-56">
                 <DropdownMenuLabel>My Account</DropdownMenuLabel>
                 <DropdownMenuSeparator />
-                {user.roles.includes('host') && (
+                {user.roles.includes('HOST') && (
                   <>
                     <DropdownMenuItem asChild>
                        <Link href="/host/my-properties">My Properties</Link>

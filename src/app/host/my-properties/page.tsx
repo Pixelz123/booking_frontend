@@ -21,7 +21,7 @@ export default function MyPropertiesPage() {
 
   useEffect(() => {
     if (isClient) {
-      if (!isAuthenticated || !user?.roles.includes('host')) {
+      if (!isAuthenticated || !user?.roles.includes('HOST')) {
         router.push('/login');
       } else {
          const hostProperties = allProperties
@@ -39,7 +39,7 @@ export default function MyPropertiesPage() {
     }
   }, [isAuthenticated, user, router, isClient]);
 
-  if (!isClient || !isAuthenticated || !user?.roles.includes('host')) {
+  if (!isClient || !isAuthenticated || !user?.roles.includes('HOST')) {
     return (
       <div className="flex flex-col items-center justify-center min-h-[60vh] text-center p-4">
         <h2 className="text-2xl font-bold mb-4">Access Denied</h2>

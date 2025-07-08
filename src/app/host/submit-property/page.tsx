@@ -19,7 +19,7 @@ export default function SubmitPropertyPage() {
   useEffect(() => {
     if (isClient) {
       // If not authenticated or user is not a host, redirect to login.
-      if (!isAuthenticated || !user?.roles.includes('host')) {
+      if (!isAuthenticated || !user?.roles.includes('HOST')) {
         // You could redirect to a specific "unauthorized" page as well
         router.push('/login');
       }
@@ -27,7 +27,7 @@ export default function SubmitPropertyPage() {
   }, [isAuthenticated, user, router, isClient]);
 
   // Render a loading state or null while checking auth to avoid flash of content
-  if (!isClient || !isAuthenticated || !user?.roles.includes('host')) {
+  if (!isClient || !isAuthenticated || !user?.roles.includes('HOST')) {
     return (
       <div className="flex flex-col items-center justify-center min-h-[60vh] text-center p-4">
         <h2 className="text-2xl font-bold mb-4">Access Denied</h2>

@@ -32,7 +32,7 @@ export default function SignupPage() {
   const router = useRouter();
   const { login } = useAuth();
   const { toast } = useToast();
-  const [role, setRole] = useState('guest');
+  const [role, setRole] = useState('USER');
   const [firstName, setFirstName] = useState('');
   const [lastName, setLastName] = useState('');
   const [signupData, setSignupData] = useState<any>(null);
@@ -129,17 +129,17 @@ export default function SignupPage() {
                 <div className="grid gap-2">
                   <Label>Sign up as a</Label>
                   <RadioGroup 
-                    defaultValue="guest" 
+                    defaultValue="USER" 
                     value={role}
                     onValueChange={setRole}
                     className="flex gap-4"
                   >
                     <div className="flex items-center space-x-2">
-                      <RadioGroupItem value="guest" id="r-guest" />
-                      <Label htmlFor="r-guest" className="font-normal">Guest</Label>
+                      <RadioGroupItem value="USER" id="r-user" />
+                      <Label htmlFor="r-user" className="font-normal">User</Label>
                     </div>
                     <div className="flex items-center space-x-2">
-                      <RadioGroupItem value="host" id="r-host" />
+                      <RadioGroupItem value="HOST" id="r-host" />
                       <Label htmlFor="r-host" className="font-normal">Host</Label>
                     </div>
                   </RadioGroup>
