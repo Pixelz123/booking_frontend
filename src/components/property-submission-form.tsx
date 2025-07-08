@@ -14,13 +14,6 @@ import {
 } from '@/components/ui/form';
 import { Input } from '@/components/ui/input';
 import { Textarea } from '@/components/ui/textarea';
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from '@/components/ui/select';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { useState } from 'react';
 import { useToast } from '@/hooks/use-toast';
@@ -38,12 +31,15 @@ import {
 const propertySchema = z.object({
   name: z.string().min(5, 'Property name must be at least 5 characters.'),
   description: z.string().min(20, 'Description must be at least 20 characters.'),
-  type: z.string().min(1, 'Please select a property type.'),
+  address: z.string().min(5, 'Address is required.'),
   city: z.string().min(2, 'City is required.'),
+  state: z.string().min(2, 'State is required.'),
   country: z.string().min(2, 'Country is required.'),
+  postal_code: z.coerce.number().min(1000, 'Please enter a valid postal code.'),
   pricePerNight: z.coerce.number().min(1, 'Price must be greater than 0.'),
   guests: z.coerce.number().min(1, 'Must accommodate at least 1 guest.'),
   bedrooms: z.coerce.number().min(1, 'Must have at least 1 bedroom.'),
+  beds: z.coerce.number().min(1, 'Must have at least 1 bed.'),
   bathrooms: z.coerce.number().min(1, 'Must have at least 1 bathroom.'),
 });
 
@@ -57,16 +53,21 @@ export function PropertySubmissionForm() {
     defaultValues: {
       name: '',
       description: '',
+      address: '',
       city: '',
+      state: '',
       country: '',
+      postal_code: undefined,
       pricePerNight: 100,
       guests: 2,
       bedrooms: 1,
+      beds: 1,
       bathrooms: 1,
     },
   });
 
   function onSubmit(values: z.infer<typeof propertySchema>) {
+    // In a real app, you would also add hostname, property_id, and image URLs.
     setSubmissionPayload(JSON.stringify(values, null, 2));
     setIsAlertOpen(true);
   }
@@ -108,46 +109,20 @@ export function PropertySubmissionForm() {
                 )}
               />
               
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
-                  <FormField
-                  control={form.control}
-                  name="type"
-                  render={({ field }) => (
-                      <FormItem>
-                      <FormLabel>Property Type</FormLabel>
-                      <Select onValueChange={field.onChange} defaultValue={field.value}>
-                          <FormControl>
-                          <SelectTrigger>
-                              <SelectValue placeholder="Select a property type" />
-                          </SelectTrigger>
-                          </FormControl>
-                          <SelectContent>
-                          <SelectItem value="Apartment">Apartment</SelectItem>
-                          <SelectItem value="House">House</SelectItem>
-                          <SelectItem value="Cottage">Cottage</SelectItem>
-                          <SelectItem value="Studio">Studio</SelectItem>
-                          <SelectItem value="Cabin">Cabin</SelectItem>
-                          </SelectContent>
-                      </Select>
-                      <FormMessage />
-                      </FormItem>
-                  )}
-                  />
-                  <FormField
-                      control={form.control}
-                      name="pricePerNight"
-                      render={({ field }) => (
-                          <FormItem>
-                          <FormLabel>Price per night ($)</FormLabel>
-                          <FormControl>
-                              <Input type="number" {...field} />
-                          </FormControl>
-                          <FormMessage />
-                          </FormItem>
-                      )}
-                  />
-              </div>
-              
+              <FormField
+                control={form.control}
+                name="address"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>Address</FormLabel>
+                    <FormControl>
+                      <Input placeholder="123 Main St" {...field} />
+                    </FormControl>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+
               <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
                   <FormField
                       control={form.control}
@@ -164,6 +139,22 @@ export function PropertySubmissionForm() {
                   />
                   <FormField
                       control={form.control}
+                      name="state"
+                      render={({ field }) => (
+                          <FormItem>
+                          <FormLabel>State / Province</FormLabel>
+                          <FormControl>
+                              <Input placeholder="e.g. Île-de-France" {...field} />
+                          </FormControl>
+                          <FormMessage />
+                          </FormItem>
+                      )}
+                  />
+              </div>
+
+               <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
+                  <FormField
+                      control={form.control}
                       name="country"
                       render={({ field }) => (
                           <FormItem>
@@ -175,14 +166,45 @@ export function PropertySubmissionForm() {
                           </FormItem>
                       )}
                   />
+                   <FormField
+                      control={form.control}
+                      name="postal_code"
+                      render={({ field }) => (
+                          <FormItem>
+                          <FormLabel>Postal Code</FormLabel>
+                          <FormControl>
+                              <Input type="number" placeholder="e.g. 75001" {...field} />
+                          </FormControl>
+                          <FormMessage />
+                          </FormItem>
+                      )}
+                  />
               </div>
+              
+              <FormField
+                  control={form.control}
+                  name="pricePerNight"
+                  render={({ field }) => (
+                      <FormItem>
+                      <FormLabel>Price per night ($)</FormLabel>
+                      <FormControl>
+                          <Input type="number" {...field} />
+                      </FormControl>
+                      <FormMessage />
+                      </FormItem>
+                  )}
+              />
+              
 
-              <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
+              <div className="grid grid-cols-1 md:grid-cols-4 gap-8">
                   <FormField control={form.control} name="guests" render={({ field }) => (
                       <FormItem><FormLabel>Guests</FormLabel><FormControl><Input type="number" {...field} /></FormControl><FormMessage /></FormItem>
                   )}/>
                   <FormField control={form.control} name="bedrooms" render={({ field }) => (
                       <FormItem><FormLabel>Bedrooms</FormLabel><FormControl><Input type="number" {...field} /></FormControl><FormMessage /></FormItem>
+                  )}/>
+                  <FormField control={form.control} name="beds" render={({ field }) => (
+                      <FormItem><FormLabel>Beds</FormLabel><FormControl><Input type="number" {...field} /></FormControl><FormMessage /></FormItem>
                   )}/>
                   <FormField control={form.control} name="bathrooms" render={({ field }) => (
                       <FormItem><FormLabel>Bathrooms</FormLabel><FormControl><Input type="number" {...field} /></FormControl><FormMessage /></FormItem>

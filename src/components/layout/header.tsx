@@ -2,7 +2,7 @@
 
 import Link from 'next/link';
 import { Button } from '@/components/ui/button';
-import { Home, LogIn, UserPlus, LogOut, UserCircle } from 'lucide-react';
+import { Home, LogIn, UserPlus, LogOut, UserCircle, PlusCircle } from 'lucide-react';
 import { useAuth } from '@/context/auth-context';
 import {
   DropdownMenu,
@@ -34,7 +34,7 @@ export function Header() {
             href="/host/submit-property"
             className="text-foreground/80 transition-colors hover:text-foreground"
           >
-            Become a Host
+            List your Property
           </Link>
         </nav>
         <div className="flex items-center gap-2">
@@ -50,9 +50,17 @@ export function Header() {
                 <DropdownMenuLabel>My Account</DropdownMenuLabel>
                 <DropdownMenuSeparator />
                 {user.roles.includes('host') && (
-                  <DropdownMenuItem asChild>
-                     <Link href="/host/submit-property">My Properties</Link>
-                  </DropdownMenuItem>
+                  <>
+                    <DropdownMenuItem asChild>
+                       <Link href="/host/my-properties">My Properties</Link>
+                    </DropdownMenuItem>
+                    <DropdownMenuItem asChild>
+                       <Link href="/host/submit-property">
+                        <PlusCircle className="mr-2 h-4 w-4" />
+                        Submit New Property
+                       </Link>
+                    </DropdownMenuItem>
+                  </>
                 )}
                  <DropdownMenuItem asChild>
                      <Link href="/bookings">My Bookings</Link>
