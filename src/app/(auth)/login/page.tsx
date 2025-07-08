@@ -1,17 +1,44 @@
-import Link from "next/link"
-import { Button } from "@/components/ui/button"
+'use client'; // Make this a client component
+
+import Link from "next/link";
+import { useRouter } from "next/navigation";
+import { Button } from "@/components/ui/button";
 import {
   Card,
   CardContent,
   CardDescription,
   CardHeader,
   CardTitle,
-} from "@/components/ui/card"
-import { Input } from "@/components/ui/input"
-import { Label } from "@/components/ui/label"
-import { Home } from "lucide-react"
+} from "@/components/ui/card";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
+import { Home } from "lucide-react";
+import { useAuth } from "@/context/auth-context";
+import React from "react";
 
 export default function LoginPage() {
+  const router = useRouter();
+  const { login } = useAuth();
+
+  const handleLogin = (event: React.FormEvent) => {
+    event.preventDefault();
+    
+    // Simulate a login API call
+    // In a real app, you would fetch this from your backend
+    const mockAuthResponse = {
+      username: 'Max Robinson',
+      jwttoken: 'fake-jwt-token-for-prototype',
+      roles: ['guest'] // You can change this to ['host'] to test host view
+    };
+
+    login(
+      { username: mockAuthResponse.username, roles: mockAuthResponse.roles },
+      mockAuthResponse.jwttoken
+    );
+
+    router.push('/');
+  };
+
   return (
     <div className="flex items-center justify-center min-h-screen bg-background">
        <div className="absolute top-4 left-4">
@@ -30,32 +57,35 @@ export default function LoginPage() {
           </CardDescription>
         </CardHeader>
         <CardContent>
-          <div className="grid gap-4">
-            <div className="grid gap-2">
-              <Label htmlFor="email">Email</Label>
-              <Input
-                id="email"
-                type="email"
-                placeholder="m@example.com"
-                required
-              />
-            </div>
-            <div className="grid gap-2">
-              <div className="flex items-center">
-                <Label htmlFor="password">Password</Label>
-                <Link href="#" className="ml-auto inline-block text-sm underline">
-                  Forgot your password?
-                </Link>
+          <form onSubmit={handleLogin}>
+            <div className="grid gap-4">
+              <div className="grid gap-2">
+                <Label htmlFor="email">Email</Label>
+                <Input
+                  id="email"
+                  type="email"
+                  placeholder="m@example.com"
+                  defaultValue="m@example.com" // Pre-fill for demo
+                  required
+                />
               </div>
-              <Input id="password" type="password" required />
+              <div className="grid gap-2">
+                <div className="flex items-center">
+                  <Label htmlFor="password">Password</Label>
+                  <Link href="#" className="ml-auto inline-block text-sm underline">
+                    Forgot your password?
+                  </Link>
+                </div>
+                <Input id="password" type="password" defaultValue="password" required />
+              </div>
+              <Button type="submit" className="w-full bg-primary text-primary-foreground hover:bg-primary/90">
+                Login
+              </Button>
+              <Button variant="outline" className="w-full">
+                Login with Google
+              </Button>
             </div>
-            <Button type="submit" className="w-full bg-primary text-primary-foreground hover:bg-primary/90">
-              Login
-            </Button>
-            <Button variant="outline" className="w-full">
-              Login with Google
-            </Button>
-          </div>
+          </form>
           <div className="mt-4 text-center text-sm">
             Don&apos;t have an account?{" "}
             <Link href="/signup" className="underline text-accent-foreground font-semibold">

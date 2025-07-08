@@ -10,6 +10,7 @@ import {
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
 import { Home } from "lucide-react"
+import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group"
 
 export default function SignupPage() {
   return (
@@ -53,6 +54,19 @@ export default function SignupPage() {
             <div className="grid gap-2">
               <Label htmlFor="password">Password</Label>
               <Input id="password" type="password" />
+            </div>
+            <div className="grid gap-2">
+              <Label>Sign up as a</Label>
+              <RadioGroup defaultValue="guest" className="flex gap-4">
+                <div className="flex items-center space-x-2">
+                  <RadioGroupItem value="guest" id="r-guest" />
+                  <Label htmlFor="r-guest" className="font-normal">Guest</Label>
+                </div>
+                <div className="flex items-center space-x-2">
+                  <RadioGroupItem value="host" id="r-host" />
+                  <Label htmlFor="r-host" className="font-normal">Host</Label>
+                </div>
+              </RadioGroup>
             </div>
             <Button type="submit" className="w-full bg-accent text-accent-foreground hover:bg-accent/90">
               Create an account
