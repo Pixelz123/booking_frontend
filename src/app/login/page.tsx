@@ -55,8 +55,8 @@ export default function LoginPage() {
     setShowJsonDialog(false);
 
     const endpoint = role === 'HOST'
-      ? '/api/auth/loginAsHost'
-      : '/api/auth/login';
+      ? 'http://10.91.233.181:8080/auth/loginAsHost'
+      : 'http://10.91.233.181:8080/auth/login';
     
     const payload = {
         username,

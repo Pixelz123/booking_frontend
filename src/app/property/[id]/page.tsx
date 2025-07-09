@@ -90,7 +90,7 @@ export default function PropertyDetailPage() {
         if (!params.id) return;
         setIsLoading(true);
         try {
-            const response = await fetch(`/api/properties/${params.id}`);
+            const response = await fetch(`http://10.91.233.181:8080/public/propertyDetails/${params.id}`);
             if (!response.ok) {
                 if (response.status === 404) {
                     notFound();
@@ -186,7 +186,7 @@ export default function PropertyDetailPage() {
     };
 
     try {
-        const response = await fetch('/api/bookings', {
+        const response = await fetch('http://10.91.233.181:8080/api/booking', {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json',

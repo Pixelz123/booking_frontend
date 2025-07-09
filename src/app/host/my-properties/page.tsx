@@ -30,7 +30,7 @@ export default function MyPropertiesPage() {
         const fetchHostProperties = async () => {
           setIsLoading(true);
           try {
-            const response = await fetch('/api/properties/my-properties', {
+            const response = await fetch('http://10.91.233.181:8080/api/hostProperties', {
               headers: {
                 'Authorization': `Bearer ${token}`
               }

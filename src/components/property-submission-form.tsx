@@ -83,7 +83,7 @@ export function PropertySubmissionForm() {
     };
 
     try {
-      const response = await fetch('/api/properties', {
+      const response = await fetch('http://10.91.233.181:8080/api/newProperty', {
         method: 'POST',
         headers: {
             'Content-Type': 'application/json',

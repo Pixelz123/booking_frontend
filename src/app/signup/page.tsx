@@ -53,7 +53,7 @@ function SignupPageContent() {
       return;
     }
     
-    const endpoint = '/api/auth/register';
+    const endpoint = 'http://10.91.233.181:8080/auth/register';
 
     try {
       const response = await fetch(endpoint, {

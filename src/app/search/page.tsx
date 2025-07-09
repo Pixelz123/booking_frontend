@@ -46,7 +46,7 @@ function SearchResults() {
           cheakOut: cheakOut || null,
         };
         
-        const response = await fetch('/api/properties/search', {
+        const response = await fetch('http://10.91.233.181:8080/public/properties', {
           method: 'POST',
           headers: {
             'Content-Type': 'application/json',

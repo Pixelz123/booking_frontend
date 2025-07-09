@@ -17,7 +17,7 @@ export function PropertyCard({ property }: PropertyCardProps) {
           <CardContent className="p-0">
             <div className="relative">
               <Image
-                src={property.heroImageSrc}
+                src="https://placehold.co"
                 alt={property.name}
                 width={600}
                 height={400}

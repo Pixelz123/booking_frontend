@@ -34,7 +34,7 @@ export default function MyBookingsPage() {
       const fetchBookings = async () => {
         setIsLoading(true);
         try {
-          const response = await fetch('/api/bookings', {
+          const response = await fetch('http://10.91.233.181:8080/api/userBookings', {
             headers: {
               'Authorization': `Bearer ${token}`
             }
@@ -143,7 +143,7 @@ export default function MyBookingsPage() {
                   </div>
                   <div className="mt-6 flex gap-4">
                     <Button asChild>
-                      <Link href={`/property/${booking.property.property_id}`}>View Property</Link>
+                      <Link href={`/property/${booking.property.propertyId}`}>View Property</Link>
                     </Button>
                     <Button variant="outline">Manage Booking</Button>
                   </div>
