@@ -14,36 +14,27 @@ import {
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Home } from "lucide-react";
-import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
 import { useAuth } from "@/context/auth-context";
-import React, { useState, Suspense, useEffect } from "react";
+import React, { useState, Suspense} from "react";
 import { useToast } from "@/hooks/use-toast";
 
 function SignupPageContent() {
   const router = useRouter();
-  const searchParams = useSearchParams();
   const { login } = useAuth();
   const { toast } = useToast();
   
-  const initialRole = searchParams.get('role') === 'HOST' ? 'HOST' : 'USER';
-  const [role, setRole] = useState(initialRole);
   
   const [firstName, setFirstName] = useState('');
   const [lastName, setLastName] = useState('');
-  const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [isLoading, setIsLoading] = useState(false);
 
-  useEffect(() => {
-    const roleFromQuery = searchParams.get('role');
-    setRole(roleFromQuery === 'HOST' ? 'HOST' : 'USER');
-  }, [searchParams]);
 
   const handleSignup = async (event: React.FormEvent) => {
     event.preventDefault();
     setIsLoading(true);
 
-    if (!firstName || !lastName || !email || !password) {
+    if (!firstName || !lastName || !password) {
       toast({
         title: "Validation Error",
         description: "Please fill in all fields.",
@@ -59,13 +50,9 @@ function SignupPageContent() {
       const response = await fetch(endpoint, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ 
-            firstName, 
-            lastName, 
-            email, 
+        body: JSON.stringify({
             password, 
-            username: `${firstName} ${lastName}`,
-            role: role,
+            username: `${firstName} ${lastName}`
         }),
       });
 
@@ -155,18 +142,6 @@ function SignupPageContent() {
                   </div>
                 </div>
                 <div className="grid gap-2">
-                  <Label htmlFor="email">Email</Label>
-                  <Input
-                    id="email"
-                    type="email"
-                    placeholder="m@example.com"
-                    required
-                    value={email}
-                    onChange={(e) => setEmail(e.target.value)}
-                    disabled={isLoading}
-                  />
-                </div>
-                <div className="grid gap-2">
                   <Label htmlFor="password">Password</Label>
                   <Input 
                     id="password" 
@@ -177,24 +152,7 @@ function SignupPageContent() {
                     disabled={isLoading}
                   />
                 </div>
-                <div className="grid gap-2">
-                  <Label>Sign up as a</Label>
-                  <RadioGroup 
-                    value={role}
-                    onValueChange={setRole}
-                    className="flex gap-4"
-                    disabled={isLoading}
-                  >
-                    <div className="flex items-center space-x-2">
-                      <RadioGroupItem value="USER" id="r-user" />
-                      <Label htmlFor="r-user" className="font-normal">User</Label>
-                    </div>
-                    <div className="flex items-center space-x-2">
-                      <RadioGroupItem value="HOST" id="r-host" />
-                      <Label htmlFor="r-host" className="font-normal">Host</Label>
-                    </div>
-                  </RadioGroup>
-                </div>
+               
                 <Button type="submit" className="w-full bg-accent text-accent-foreground hover:bg-accent/90" disabled={isLoading}>
                   {isLoading ? 'Creating Account...' : 'Create an account'}
                 </Button>

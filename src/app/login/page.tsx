@@ -18,16 +18,7 @@ import { useAuth } from "@/context/auth-context";
 import React, { useState } from "react";
 import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
 import { useToast } from "@/hooks/use-toast";
-import {
-  AlertDialog,
-  AlertDialogAction,
-  AlertDialogCancel,
-  AlertDialogContent,
-  AlertDialogDescription,
-  AlertDialogFooter,
-  AlertDialogHeader,
-  AlertDialogTitle,
-} from "@/components/ui/alert-dialog";
+
 
 export default function LoginPage() {
   const router = useRouter();
@@ -37,22 +28,13 @@ export default function LoginPage() {
   const [password, setPassword] = useState('password');
   const [role, setRole] = useState('USER');
   const [isLoading, setIsLoading] = useState(false);
-  const [showJsonDialog, setShowJsonDialog] = useState(false);
-  const [jsonPayload, setJsonPayload] = useState('');
 
-  const handleLogin = (event: React.FormEvent) => {
+ 
+
+  const proceedWithLogin = async (event: React.FormEvent) => {
     event.preventDefault();
-    const payload = {
-      username,
-      password,
-    };
-    setJsonPayload(JSON.stringify(payload, null, 2));
-    setShowJsonDialog(true);
-  };
-
-  const proceedWithLogin = async () => {
     setIsLoading(true);
-    setShowJsonDialog(false);
+    // setShowJsonDialog(false);
 
     const endpoint = role === 'HOST'
       ? 'http://10.91.233.181:8080/auth/loginAsHost'
@@ -129,7 +111,7 @@ export default function LoginPage() {
             </CardDescription>
           </CardHeader>
           <CardContent>
-            <form onSubmit={handleLogin}>
+            <form onSubmit={proceedWithLogin}>
               <div className="grid gap-4">
                 <div className="grid gap-2">
                   <Label htmlFor="username">Username</Label>
@@ -146,9 +128,7 @@ export default function LoginPage() {
                 <div className="grid gap-2">
                   <div className="flex items-center">
                     <Label htmlFor="password">Password</Label>
-                    <Link href="#" className="ml-auto inline-block text-sm underline">
-                      Forgot your password?
-                    </Link>
+                   
                   </div>
                   <Input 
                     id="password" 
@@ -181,9 +161,6 @@ export default function LoginPage() {
                   <Button type="submit" className="w-full bg-primary text-primary-foreground hover:bg-primary/90" disabled={isLoading}>
                     {isLoading ? 'Logging in...' : 'Login'}
                   </Button>
-                  <Button variant="outline" className="w-full" disabled={isLoading}>
-                    Login with Google
-                  </Button>
                 </div>
               </form>
               <div className="mt-4 text-center text-sm">
@@ -196,23 +173,6 @@ export default function LoginPage() {
           </Card>
         </div>
 
-      <AlertDialog open={showJsonDialog} onOpenChange={setShowJsonDialog}>
-        <AlertDialogContent>
-          <AlertDialogHeader>
-            <AlertDialogTitle>JSON Payload for Login</AlertDialogTitle>
-            <AlertDialogDescription>
-              This is the data that will be sent to the server.
-            </AlertDialogDescription>
-          </AlertDialogHeader>
-          <pre className="mt-2 w-full rounded-md bg-muted p-4 overflow-x-auto">
-            <code className="text-muted-foreground">{jsonPayload}</code>
-          </pre>
-          <AlertDialogFooter>
-            <AlertDialogCancel onClick={() => setShowJsonDialog(false)}>Cancel</AlertDialogCancel>
-            <AlertDialogAction onClick={proceedWithLogin}>Send Request</AlertDialogAction>
-          </AlertDialogFooter>
-        </AlertDialogContent>
-      </AlertDialog>
     </>
   )
 }

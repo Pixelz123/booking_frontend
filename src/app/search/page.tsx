@@ -13,13 +13,7 @@ import {
 import { Label } from '@/components/ui/label';
 import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from '@/components/ui/select';
+
 import { Slider } from '@/components/ui/slider';
 import type { PropertySummary } from '@/lib/types';
 import { Skeleton } from '@/components/ui/skeleton';
@@ -95,20 +89,7 @@ function SearchResults() {
                   <span>$1000+</span>
                 </div>
               </div>
-              <div className="space-y-2">
-                <Label htmlFor="property-type">Property Type</Label>
-                <Select>
-                  <SelectTrigger id="property-type">
-                    <SelectValue placeholder="Select type" />
-                  </SelectTrigger>
-                  <SelectContent>
-                    <SelectItem value="apartment">Apartment</SelectItem>
-                    <SelectItem value="house">House</SelectItem>
-                    <SelectItem value="cottage">Cottage</SelectItem>
-                    <SelectItem value="studio">Studio</SelectItem>
-                  </SelectContent>
-                </Select>
-              </div>
+             
               <Button className="w-full bg-accent text-accent-foreground hover:bg-accent/90">Apply Filters</Button>
             </CardContent>
           </Card>
