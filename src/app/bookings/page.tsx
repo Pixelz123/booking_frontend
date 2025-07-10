@@ -115,7 +115,7 @@ export default function MyBookingsPage() {
               <Card key={booking.bookingId} className="overflow-hidden md:flex shadow-md hover:shadow-lg transition-shadow duration-300">
                 <div className="md:w-1/3 relative h-48 md:h-auto">
                   <Image
-                    src={booking.property.hero_image_src}
+                    src={booking.property.heroImageSrc}
                     alt={booking.property.name}
                     layout="fill"
                     objectFit="cover"
@@ -125,7 +125,7 @@ export default function MyBookingsPage() {
                 </div>
                 <CardContent className="p-6 md:w-2/3 flex flex-col justify-between">
                   <div>
-                    <p className="text-sm text-muted-foreground">{booking.property.city}, {booking.property.country}</p>
+                    <p className="text-sm text-muted-foreground">{booking.property.city}</p>
                     <h2 className="text-2xl font-bold font-headline mt-1">{booking.property.name}</h2>
                     <p className="text-sm text-muted-foreground mt-1">Hosted by {booking.property.hostname}</p>
                     <div className="flex flex-wrap items-center gap-x-6 gap-y-2 text-muted-foreground mt-4">
@@ -144,7 +144,7 @@ export default function MyBookingsPage() {
                   </div>
                   <div className="mt-6 flex gap-4">
                     <Button asChild>
-                      <Link href={`/property/${booking.property.property_id}`}>View Property</Link>
+                      <Link href={`/property/${booking.property.propertyId}`}>View Property</Link>
                     </Button>
                     <Button variant="outline">Manage Booking</Button>
                   </div>
