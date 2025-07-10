@@ -45,6 +45,7 @@ const propertySchema = z.object({
 });
 
 export function PropertySubmissionForm() {
+  const API_BASE = process.env.NEXT_PUBLIC_BACKEND_URL;
   const [isLoading, setIsLoading] = useState(false);
   const { toast } = useToast();
   const router = useRouter();
@@ -83,7 +84,7 @@ export function PropertySubmissionForm() {
     };
 
     try {
-      const response = await fetch('http://10.91.233.181:8080/api/newProperty', {
+      const response = await fetch(`${API_BASE}/api/newProperty`, {
         method: 'POST',
         headers: {
             'Content-Type': 'application/json',

@@ -73,6 +73,7 @@ function PropertyDetailSkeleton() {
 }
 
 export default function PropertyDetailPage() {
+  const API_BASE = process.env.NEXT_PUBLIC_BACKEND_URL;
   const params = useParams<{ id: string }>();
   const router = useRouter();
   const { toast } = useToast();
@@ -90,7 +91,7 @@ export default function PropertyDetailPage() {
         if (!params.id) return;
         setIsLoading(true);
         try {
-            const response = await fetch(`http://10.91.233.181:8080/public/propertyDetails/${params.id}`);
+            const response = await fetch(`${API_BASE}/public/propertyDetails/${params.id}`);
             if (!response.ok) {
                 if (response.status === 404) {
                     notFound();
@@ -179,14 +180,14 @@ export default function PropertyDetailPage() {
 
     setIsBooking(true);
     const bookingRequest = {
-      propertyId: property.property_id,
+      propertyId: property.propertyId,
       guestList: guests.map(g => ({ name: g.name, age: parseInt(g.age, 10) })),
       cheakIn: format(date.from, 'yyyy-MM-dd'),
       cheakOut: format(date.to, 'yyyy-MM-dd'),
     };
 
     try {
-        const response = await fetch('http://10.91.233.181:8080/api/booking', {
+        const response = await fetch(`{API_BASE}/api/booking`, {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json',

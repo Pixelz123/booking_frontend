@@ -14,6 +14,7 @@ import { useToast } from '@/hooks/use-toast';
 import { Skeleton } from '@/components/ui/skeleton';
 
 export default function MyBookingsPage() {
+  const API_BASE = process.env.NEXT_PUBLIC_BACKEND_URL;
   const { isAuthenticated, user, token } = useAuth();
   const router = useRouter();
   const { toast } = useToast();
@@ -34,7 +35,7 @@ export default function MyBookingsPage() {
       const fetchBookings = async () => {
         setIsLoading(true);
         try {
-          const response = await fetch('http://10.91.233.181:8080/api/userBookings', {
+          const response = await fetch(`${API_BASE}/api/userBookings`, {
             headers: {
               'Authorization': `Bearer ${token}`
             }

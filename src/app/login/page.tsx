@@ -21,6 +21,7 @@ import { useToast } from "@/hooks/use-toast";
 
 
 export default function LoginPage() {
+  const API_BASE = process.env.NEXT_PUBLIC_BACKEND_URL;
   const router = useRouter();
   const { login } = useAuth();
   const { toast } = useToast();
@@ -37,8 +38,8 @@ export default function LoginPage() {
     // setShowJsonDialog(false);
 
     const endpoint = role === 'HOST'
-      ? 'http://10.91.233.181:8080/auth/loginAsHost'
-      : 'http://10.91.233.181:8080/auth/login';
+      ? `${API_BASE}/auth/loginAsHost`
+      : `${API_BASE}/auth/login`;
     
     const payload = {
         username,

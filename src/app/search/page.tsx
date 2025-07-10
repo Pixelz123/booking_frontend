@@ -10,6 +10,7 @@ import { Skeleton } from '@/components/ui/skeleton';
 import { useToast } from '@/hooks/use-toast';
 
 function SearchResults() {
+  const API_BASE = process.env.NEXT_PUBLIC_BACKEND_URL;
   const searchParams = useSearchParams();
   const { toast } = useToast();
   const [properties, setProperties] = useState<PropertySummary[]>([]);
@@ -30,7 +31,7 @@ function SearchResults() {
           cheakOut: cheakOut || null,
         };
         
-        const response = await fetch('http://10.91.233.181:8080/public/properties', {
+        const response = await fetch(`${API_BASE}/public/properties`, {
           method: 'POST',
           headers: {
             'Content-Type': 'application/json',

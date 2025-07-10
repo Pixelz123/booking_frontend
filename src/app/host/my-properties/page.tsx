@@ -11,6 +11,7 @@ import { useToast } from '@/hooks/use-toast';
 import { Skeleton } from '@/components/ui/skeleton';
 
 export default function MyPropertiesPage() {
+  const API_BASE=process.env.NEXT_JS_BACKEND_URL
   const { isAuthenticated, user, token } = useAuth();
   const router = useRouter();
   const { toast } = useToast();
@@ -30,7 +31,7 @@ export default function MyPropertiesPage() {
         const fetchHostProperties = async () => {
           setIsLoading(true);
           try {
-            const response = await fetch('http://10.91.233.181:8080/api/hostProperties', {
+            const response = await fetch(`${API_BASE}/api/hostProperties`, {
               headers: {
                 'Authorization': `Bearer ${token}`
               }

@@ -19,6 +19,7 @@ import React, { useState, Suspense} from "react";
 import { useToast } from "@/hooks/use-toast";
 
 function SignupPageContent() {
+  const API_BASE = process.env.NEXT_PUBLIC_BACKEND_URL;
   const router = useRouter();
   const { login } = useAuth();
   const { toast } = useToast();
@@ -44,7 +45,7 @@ function SignupPageContent() {
       return;
     }
     
-    const endpoint = 'http://10.91.233.181:8080/auth/register';
+    const endpoint = `${API_BASE}/auth/register`;
 
     try {
       const response = await fetch(endpoint, {
