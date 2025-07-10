@@ -3,7 +3,7 @@ import type { PropertyDetail, Booking } from './types';
 // Let's pre-populate with some data for demonstration
 export const allProperties: PropertyDetail[] = [
     {
-        property_id: 'prop1',
+        propertyId: 'prop1',
         name: 'Seaside Villa in Malibu',
         description: 'Experience luxury at this stunning seaside villa. With breathtaking ocean views, a private pool, and modern amenities, it\'s the perfect getaway for families or groups. Enjoy the spacious living areas and the serene beach at your doorstep.',
         city: 'Malibu',
@@ -25,7 +25,7 @@ export const allProperties: PropertyDetail[] = [
         host_avatar_src: 'https://placehold.co/100x100.png',
     },
     {
-        property_id: 'prop2',
+        propertyId: 'prop2',
         name: 'Chic Urban Loft',
         description: 'A stylish and modern loft located in the heart of New York. This space is perfect for couples or solo travelers looking to explore the city. It features an open-plan living area, a fully equipped kitchen, and easy access to public transport.',
         city: 'New York',
@@ -47,7 +47,7 @@ export const allProperties: PropertyDetail[] = [
         host_avatar_src: 'https://placehold.co/100x100.png',
     },
     {
-        property_id: 'prop3',
+        propertyId: 'prop3',
         name: 'Cozy Mountain Cabin',
         description: 'Escape to this charming and cozy cabin in Aspen. Surrounded by nature, it offers a peaceful retreat with a rustic feel and all the modern comforts. Ideal for hiking in the summer and skiing in the winter.',
         city: 'Aspen',
@@ -69,7 +69,7 @@ export const allProperties: PropertyDetail[] = [
         host_avatar_src: 'https://placehold.co/100x100.png',
     },
     {
-        property_id: 'prop4',
+        propertyId: 'prop4',
         name: 'Modern Downtown Apartment',
         description: 'A sleek and modern apartment in downtown Paris, offering stunning views of the city. Perfect for business travelers or tourists, with all major attractions just a short walk away. The apartment is fully furnished with high-end appliances.',
         city: 'Paris',

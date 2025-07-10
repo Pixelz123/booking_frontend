@@ -53,7 +53,7 @@ export async function POST(request: Request) {
             return NextResponse.json({ message: 'Missing required booking information' }, { status: 400 });
         }
 
-        const property = allProperties.find(p => p.property_id === propertyId);
+        const property = allProperties.find(p => p.propertyId === propertyId);
         if (!property) {
             return NextResponse.json({ message: 'Property not found' }, { status: 404 });
         }

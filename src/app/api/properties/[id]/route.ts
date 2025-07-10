@@ -8,7 +8,7 @@ export async function GET(
 ) {
   try {
     const propertyId = params.id;
-    const property = allProperties.find(p => p.property_id === propertyId);
+    const property = allProperties.find(p => p.propertyId === propertyId);
 
     if (!property) {
       return NextResponse.json({ message: 'Property not found' }, { status: 404 });

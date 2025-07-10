@@ -29,7 +29,7 @@ export async function POST(request: Request) {
 
     // Map the full property details to the summary version for the search results page.
     const summarizedProperties = filteredProperties.map(p => ({
-        propertyId: p.property_id,
+        propertyId: p.propertyId,
         hostname: p.hostname,
         city: p.city,
         heroImageSrc: p.hero_image_src,

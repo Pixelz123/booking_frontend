@@ -26,7 +26,7 @@ export async function POST(request: Request) {
     const body = await request.json();
     
     const newProperty: PropertyDetail = {
-      property_id: `prop${allProperties.length + 1}`,
+      propertyId: `prop${allProperties.length + 1}`,
       name: body.name,
       description: body.description,
       city: body.city,
