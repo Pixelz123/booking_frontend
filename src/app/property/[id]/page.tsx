@@ -180,7 +180,7 @@ export default function PropertyDetailPage() {
 
     setIsBooking(true);
     const bookingRequest = {
-      propertyId: property.propertyId,
+      propertyId: property.property_id,
       guestList: guests.map(g => ({ name: g.name, age: parseInt(g.age, 10) })),
       cheakIn: format(date.from, 'yyyy-MM-dd'),
       cheakOut: format(date.to, 'yyyy-MM-dd'),

@@ -144,7 +144,7 @@ export default function MyBookingsPage() {
                   </div>
                   <div className="mt-6 flex gap-4">
                     <Button asChild>
-                      <Link href={`/property/${booking.property.propertyId}`}>View Property</Link>
+                      <Link href={`/property/${booking.property.property_id}`}>View Property</Link>
                     </Button>
                     <Button variant="outline">Manage Booking</Button>
                   </div>

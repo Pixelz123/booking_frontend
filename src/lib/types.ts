@@ -8,7 +8,7 @@ export type PropertySummary = {
 };
 
 export type PropertyDetail = {
-  propertyId: string;
+  property_id: string;
   name: string;
   description: string;
   city: string;
