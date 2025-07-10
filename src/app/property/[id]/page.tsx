@@ -187,7 +187,7 @@ export default function PropertyDetailPage() {
     };
 
     try {
-        const response = await fetch(`{API_BASE}/api/booking`, {
+        const response = await fetch(`${API_BASE}/api/booking`, {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json',
